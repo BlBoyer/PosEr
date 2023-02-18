@@ -1,7 +1,10 @@
 <#Setup Environment Variables and dir structure if it doesn't exist#>
 function Set-Environment {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(
+            Mandatory = $true,
+            HelpMessage = "Must be a valid directory, default is USERPROFILE\Documents\WindowsPowerShell"
+        )]
         [string] $PowerShellProfilePath
         )
         if($null -eq $PowerShellProfilePath){
@@ -48,10 +51,10 @@ function Add-Settings {
         [switch] $h
         )
 
-    if($h){
+<#    if($h){
         Get-Content $($env:PowerShellScripts+'\pse.txt')
         exit
-    }
+    }#>
     if($null -eq $env:PowerShellHome){
         Set-Environment
     }
