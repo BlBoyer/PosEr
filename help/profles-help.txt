@@ -1,0 +1,9 @@
+Usage: Switch-Profile [-parameter] [options]
+
+Parameters:
+
+-ps			Name of the setting you wish to switch to.
+
+	options:	presentation, local
+
+-h			View help contents

@@ -1,0 +1,38 @@
+Synopsis:
+
+This command creates profile settings. There are three options available:
+local, presentation, and defaults
+
+Usage: Add-Settings [-parameter] [option]
+
+Parameters:
+
+-settingName        The name of the setting to modify. Defaults will be overwritten on switching profiles.
+-backgroundImage    Set the image for the console background. Defaults to Images/background.jpg
+-bgTransparency     Set the transparency for the background. Float value between 0-1
+-colorScheme        Set the color scheme for the console window
+
+        options: Campbell, Campbell Powershell, One Half Dark, One Half Light,
+        Solarized Dark, Solarized Light, Tango Dark, Tango Light, Vintage
+
+-fontFace           Set the font for the console
+
+        options: Cascadia Code, Cascadia Mono, Consolas, Courier New, Lucida Console,
+        Lucida Sans Typewriter, MS Gothic, NSimSun, OCR A, SimSun-ExtB.
+        Add nerdfonts for more, or if you are using oh-my-posh.
+
+-fontSize:          Set the font size for the console. Int value
+-fontWeight         Set the font weight
+
+        options: Thin, Extra-Light, Light, Semi-Light, Normal, Medium, Semi-Bold,
+        Bold, Extra-Bold, Black, Extra-Black, Custom
+
+-transparency       Set the transparency for the console window
+
+        options: Int value between 0 and 100
+
+-theme              Set the theme for the console window
+
+        options: dark, light, system
+
+-h                  View help contents
