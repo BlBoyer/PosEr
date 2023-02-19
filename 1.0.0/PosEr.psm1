@@ -131,7 +131,7 @@ function Switch-Profile {
             Mandatory=$true,
             HelpMessage="Allowed values: 'presentation', 'local'"
         )]
-        [string] $ps,
+        [string] $settingName,
         [Parameter()]
         [switch] $h
     )
@@ -142,3 +142,6 @@ function Switch-Profile {
     }
     Copy-Item -Path "$env:PowerShellHome\Settings\$ps.json" -Destination "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json"
 }
+New-Alias -Name chp  -Value Switch-Profile -Description 'Change between profiles.'
+New-Alias -Name pps -Value Add-Settings -Description 'Modify settings for profiles.'
+Export-ModuleMember -Function * -Alias *
