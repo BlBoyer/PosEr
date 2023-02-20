@@ -5,5 +5,4 @@
     RootModule = 'PosEr.psm1'
     FunctionsToExport = '*'
     AliasesToExport = '*'
-    <#VariablesToExport = ''#>
 }
