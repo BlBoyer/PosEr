@@ -17,8 +17,8 @@ Each function can be used with the  __`'-h'`__ switch to display command paramet
 Use the __`'Set-Environment'`__ command and supply the '__PowerShellProfilePath__' parameter with the folder you have your PowerShell profile script in.  
 The module will then create environment variables and folders to use.
 ### *Setting Defaults*
-This module is setup for use with __'oh-my-posh'__, <font color="magenta">but it is not required</font>. If you don't have it, you can get it [__here__](https://ohmyposh.dev/).  
-You should install nerdfonts if you haven't already.  
+This module will setup a folder for __'oh-my-posh'__ prompts, <font color="magenta">but it is not required to use it</font>. If you don't have it, you can get it [__here__](https://ohmyposh.dev/).  
+You should install nerdfonts if you plan on using __'oh-my-posh'__.  
 
 Find the '__Prompts__' folder. You can add your prompt themes here, and use your profile to set the prompt. For example:  
 `oh-my-posh init pwsh --config $env:PowerShellPrompts\currentTheme.json | Invoke-Expression`
@@ -27,3 +27,38 @@ Find the __'Images'__ folder, in your PowerShell profile directory.
 Here you can add a background image, name it: '*background.jpg*'. This will be the default image for your console.  
 
 ### *Run the Add-Settings Command*
+To test settings, or or set them individualy, you can use the __`'Add_Settings'`__ command like this:  
+
+<pre>Add-Settings defaults [-option] [value]</pre>
+The options are:
+- <font color=cyan>backgroundImage</font>
+- <font color="cyan">bgTransparency</font>
+- <font color="cyan">colorScheme</font>
+- <font color="cyan">fontFace</font>
+- <font color="cyan">fontSize</font>
+- <font color="cyan">fontWeight</font>
+- <font color="cyan">transparency</font>
+- <font color="cyan">theme</font>
+
+To save settings, there are two profiles available that can be created with the __`'Add-Settings'`__ command- `'local'` and `'presentation'`. Supply values for as many parameters as you desire per call.
+
+<font color=magenta>__*Don't supply values for options you wish to use their defaults for.__</font>  
+&nbsp;
+### *Run the Switch-Profile Command*
+To use one of the profiles, use the __`'Switch-Profile'`__ command. Syntax:
+
+<pre>Switch-Profile [profile_name]</pre>
+
+Available options are `'local'` and `'presentation'`.  
+
+*You must initialize the setting values with the __`'Add-Settings'`__ command before trying to use them.
+
+### *Use the Aliases*
+Aliases are provide to make the setting functions faster at the keyboard. For the __`'Add-Settings'`__ command, use the alias __`'pps'`__; For the __`'Switch-Profile'`__ command, use the alias __`'chp'`__.  
+Examples:  
+<pre>
+pps -fontSize 18
+pps local -transparency 30
+pps presentation -colorScheme "Tango Dark"
+chp presentation
+</pre>
