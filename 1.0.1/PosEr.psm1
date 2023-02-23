@@ -121,6 +121,10 @@ function Add-Settings {
 
     <# necessary Depth level 3, this is subject to change if the powershell settings file obtains further nested values #>
     $SettingsObject | ConvertTo-Json -Depth 100 | Set-Content $outputFile
+    
+    if($settingName -ne 'defaults'){
+        Switch-Profile($settingName)
+    }
 }
 
 function Switch-Profile {
