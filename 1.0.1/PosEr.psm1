@@ -150,7 +150,8 @@ function Switch-Profile {
     if($noCopy){
         Write-Host `n "No saved profile settings for this option found." `n -ForegroundColor Magenta
     }
-}
+} 
+
 New-Alias -Name chp  -Value Switch-Profile -Description 'Change between profiles.'
 New-Alias -Name pps -Value Add-Settings -Description 'Modify settings for profiles.'
 Export-ModuleMember -Function * -Alias *
