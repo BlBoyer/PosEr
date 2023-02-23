@@ -34,6 +34,8 @@ function Set-Environment {
     mkdir -p $env:PowerShellPrompts
     mkdir -p $env:PowerShellHome'\Images'
     mkdir -p $env:PowerShellHome'\Settings'
+
+    Copy-Item -Path "$PSScriptRoot\img\background.png" -Destination "$env:PowerShellHome\Images\background.jpg"
 }
     
 function Add-Settings {
