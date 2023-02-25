@@ -5,4 +5,5 @@
     RootModule = 'PosEr.psm1'
     FunctionsToExport = '*'
     AliasesToExport = '*'
+    ScriptsToProcess = 'Set-Defaults.ps1'
 }
