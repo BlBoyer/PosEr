@@ -46,26 +46,36 @@ function Add-Settings {
             HelpMessage="Allowed values: 'presentation', 'local', 'defaults'"
         )]
         [string] $settingName,
+        [Alias("bgi")]
         [Parameter()]
         [string] $backgroundImage,
+        [Alias("gbt")]
         [Parameter()]
         [float] $bgTransparency,
+        [Alias("cs")]
         [Parameter()]
         [string] $colorScheme,
+        [Alias("ff")]
         [Parameter()]
         [string] $fontFace,
+        [Alias("fs")]
         [Parameter()]
         [int] $fontSize,
+        [Alias("fw")]
         [Parameter()]
         [string] $fontWeight,
+        [Alias("ty")]
         [Parameter()]
         [int] $transparency,
+        [Alias("th")]
         [Parameter()]
         [string] $theme,
         [Parameter()]
         [switch] $h,
         [Parameter()]
-        [switch] $r
+        [switch] $r,
+        [Parameter()]
+        [switch] $nc
     )
     
     if($h){
@@ -83,7 +93,12 @@ function Add-Settings {
     <#if $r switch, replace all ungivens to defaults, otherwise only use values in given array#>
     <#we can check against defaults#>
     if($r){
-        $continue = Read-Host "Reset all other settings to defaults?(y/n)"
+        $host.UI.RawUI.ForegroundColor = 'Green'
+        if(!$nc){
+            $continue = Read-Host "Reset all other settings to defaults?(y/n)"
+        } else {
+            $continue ='y'
+        }
         if($continue -ieq 'y'){
             $SettingsObject.profiles.defaults = [PSCustomObject]@{
                 backgroundImage =  $backgroundImage
@@ -122,7 +137,12 @@ function Add-Settings {
     }
 
     if($settingName -eq 'defaults'){
-        $continue = Read-Host "Your given values will overwrite your default values, continue?(y/n)"
+        $host.UI.RawUI.ForegroundColor = 'Green'
+        if(!$nc){
+            $continue = Read-Host "Your given values will overwrite your default values, continue?(y/n)"
+        } else {
+            $continue = 'y'
+        }
         if ($continue -ieq "y"){
             $outputFile = $PSSettings
             $defaultParams = Get-Content -Path $PSScriptRoot\settings.psd1 
@@ -158,12 +178,11 @@ function Add-Settings {
 }
 
 function Switch-Profile {
-    <#Get content from setting path, set content to settings path#>
     param(
-        [ValidateSet('presentation', 'local')]
+        [ValidateSet('presentation', 'local', 'defaults')]
         [Parameter(
             Mandatory=$true,
-            HelpMessage="Allowed values: 'presentation', 'local'"
+            HelpMessage="Allowed values: 'presentation', 'local', 'defaults"
         )]
         [string] $settingName,
         [Parameter()]
@@ -173,6 +192,10 @@ function Switch-Profile {
     if($h){
         Get-Content "$PSScriptRoot\help\profiles-help.txt"
         return
+    }
+    if($settingName -eq 'defaults'){
+        $PSDefaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value
+        return pps defaults -r -nc
     }
     Copy-Item -Path "$env:PowerShellHome\Settings\$settingName.json" `
      -Destination "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json" `
