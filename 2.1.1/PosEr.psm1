@@ -63,7 +63,9 @@ function Add-Settings {
         [Parameter()]
         [string] $theme,
         [Parameter()]
-        [switch] $h
+        [switch] $h,
+        [Parameter()]
+        [switch] $r
     )
     
     if($h){
@@ -78,25 +80,53 @@ function Add-Settings {
 
     $SettingsObject = Get-Content -Raw $PSSettings | ConvertFrom-Json
 
-    $SettingsObject.profiles.defaults = [PSCustomObject]@{
-        backgroundImage =  $backgroundImage
-        backgroundImageOpacity =  $bgTransparency
-        colorScheme = $colorScheme
-        font =  [PSCustomObject]@{
-            face =  $fontFace
-            size = $fontSize
-            weight = $fontWeight
+    <#if $r switch, replace all ungivens to defaults, otherwise only use values in given array#>
+    <#we can check against defaults#>
+    if($r){
+        $continue = Read-Host "Reset all other settings to defaults?(y/n)"
+        if($continue -ieq 'y'){
+            $SettingsObject.profiles.defaults = [PSCustomObject]@{
+                backgroundImage =  $backgroundImage
+                backgroundImageOpacity =  $bgTransparency
+                colorScheme = $colorScheme
+                font =  [PSCustomObject]@{
+                    face =  $fontFace
+                    size = $fontSize
+                    weight = $fontWeight
+                }
+                opacity = $transparency
+            }
+            $SettingsObject.theme = $theme
+        } else {
+            return
         }
-        opacity = $transparency
+    } else {
+        $defaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value
+        <#just update the object where val isn't default, duh#>
+        if($backgroundImage -ne $defaultParameterValues."Add-Settings:backgroundImage"){
+        $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage}
+        if($bgTransparency -ne $defaultParameterValues."Add-Settings:bgTransparency"){
+            $SettingsObject.profiles.defaults.backgroundImageOpacity = $bgTransparency}
+        if($colorScheme -ne $defaultParameterValues."Add-Settings:colorScheme"){
+            $SettingsObject.profiles.defaults.colorScheme = $colorScheme}
+        if($fontFace -ne $defaultParameterValues."Add-Settings:fontFace"){
+            $SettingsObject.profiles.defaults.font.face = $fontFace}
+        if($fontSize -ne $defaultParameterValues."Add-Settings:fontSize"){
+            $SettingsObject.profiles.defaults.font.size = $fontSize}
+        if($fontWeight -ne $defaultParameterValues."Add-Settings:fontWeight"){
+            $SettingsObject.profiles.defaults.font.weight = $fontWeight}
+        if($transparency -ne $defaultParameterValues."Add-Settings:transparency"){
+            $SettingsObject.profiles.defaults.opacity = $transparency}
+        if($theme -ne $defaultParameterValues."Add-Settings:theme"){
+            $SettingsObject.theme = $theme}
     }
-    $SettingsObject.theme = $theme
 
     if($settingName -eq 'defaults'){
         $continue = Read-Host "Your given values will overwrite your default values, continue?(y/n)"
-        if ($continue -eq 'y'){
+        if ($continue -ieq "y"){
             $outputFile = $PSSettings
-            <#mod object needs to change only defined values#>
             $defaultParams = Get-Content -Path $PSScriptRoot\settings.psd1 
+            <#mod object needs to change only defined values#>
             if($null -ne $bgTransparency){
                 $defaultParams[2] = "'Add-Settings:bgTransparency'=$bgTransparency"}
             if($null -ne $colorScheme){
