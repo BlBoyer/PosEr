@@ -34,8 +34,10 @@ function Set-Environment {
     mkdir -p $env:PowerShellPrompts
     mkdir -p $env:PowerShellHome'\Images'
     mkdir -p $env:PowerShellHome'\Settings'
+
+    Copy-Item -Path "$PSScriptRoot\img\background.png" -Destination "$env:PowerShellHome\Images\background.jpg"
 }
-    
+    <#mod validatee set to default paremter with |options|#>
 function Add-Settings {
     param(
         [ValidateSet('presentation', 'local', 'defaults')]
@@ -71,30 +73,6 @@ function Add-Settings {
     if($null -eq $env:PowerShellHome){
         Set-Environment
     }
-    if($null -or '' -eq $backgroundImage){
-        $backgroundImage = $env:PowerShellHome+'\Images\background.jpg'
-    }
-    if($null -or 0 -eq $bgTransparency){
-        $bgTransparency = 0.7
-    }
-    if($null -or '' -eq $colorScheme){
-        $colorScheme = 'Vintage'
-    }
-    if($null -or '' -eq $fontFace){
-        $fontFace = 'ShureTechMono NF'
-    }
-    if($null -or 0 -eq $fontSize){
-        $fontSIze = 13
-    }
-    if($null -or '' -eq $fontWeight){
-        $fontWeight = 'medium'
-    }
-    if($null -or 0 -eq $transparency){
-        $transparency = 80
-    }
-    if($null -or '' -eq $theme){
-        $theme = 'dark'
-    }
 
     $PSSettings = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json"
 
@@ -114,7 +92,29 @@ function Add-Settings {
     $SettingsObject.theme = $theme
 
     if($settingName -eq 'defaults'){
-        $outputFile = $PSSettings
+        $continue = Read-Host "Your given values will overwrite your default values, continue?(y/n)"
+        if ($continue -eq 'y'){
+            $outputFile = $PSSettings
+            <#mod object needs to change only defined values#>
+            $defaultParams = Get-Content -Path $PSScriptRoot\settings.psd1 
+            if($null -ne $bgTransparency){
+                $defaultParams[2] = "'Add-Settings:bgTransparency'=$bgTransparency"}
+            if($null -ne $colorScheme){
+                $defaultParams[3] = "'Add-Settings:colorScheme'='$colorScheme'"}
+            if($null -ne $fontFace){
+                $defaultParams[4] = "'Add-Settings:fontFace'='$fontFace'"}
+            if($null -ne $fontSize){
+                $defaultParams[5] = "'Add-Settings:fontSize'=$fontSize"}
+            if($null -ne $fontWeight){
+                $defaultParams[6] = "'Add-Settings:fontWeight'='$fontWeight'"}
+            if($null -ne $transparency){
+                $defaultParams[7] = "'Add-Settings:transparency'=$transparency"}
+            if($null -ne $theme){
+                $defaultParams[8] = "'Add-Settings:theme'='$theme'"}
+            $defaultParams | Set-Content -Path $PSScriptRoot\settings.psd1 -Force
+        } else {
+            return
+        }
     } else {
         $outputFile = "$env:PowerShellHome\Settings\$settingName.json" 
     }
@@ -150,7 +150,8 @@ function Switch-Profile {
     if($noCopy){
         Write-Host `n "No saved profile settings for this option found." `n -ForegroundColor Magenta
     }
-}
+} 
+
 New-Alias -Name chp  -Value Switch-Profile -Description 'Change between profiles.'
 New-Alias -Name pps -Value Add-Settings -Description 'Modify settings for profiles.'
 Export-ModuleMember -Function * -Alias *
