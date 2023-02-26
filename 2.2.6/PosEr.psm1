@@ -116,7 +116,7 @@ function Add-Settings {
         }
     } else {
         <#update the settings object#>
-        .$PSSCriptRoot/Set-Defaults
+        .$PSScriptRoot/Set-Defaults
         if($backgroundImage -ne $PSDefaultParameterValues."Add-Settings:backgroundImage"){
             $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage
             <#copy both and pt new img in folder#>
