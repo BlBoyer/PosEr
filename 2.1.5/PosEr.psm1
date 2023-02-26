@@ -90,8 +90,7 @@ function Add-Settings {
 
     $SettingsObject = Get-Content -Raw $PSSettings | ConvertFrom-Json
 
-    <#if $r switch, replace all ungivens to defaults, otherwise only use values in given array#>
-    <#we can check against defaults#>
+    <#if $r switch, replace all ungivens to loaded defaults, otherwise only use values in given array#>
     if($r){
         $host.UI.RawUI.ForegroundColor = 'Green'
         if(!$nc){
@@ -116,8 +115,9 @@ function Add-Settings {
             return
         }
     } else {
+        <#update the settings object#>
+        <#we're getting the original scope here, which doesn't get updated#>
         $defaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value
-        <#just update the object where val isn't default, duh#>
         if($backgroundImage -ne $defaultParameterValues."Add-Settings:backgroundImage"){
             $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage
             <#copy both and pt new img in folder#>
@@ -142,7 +142,7 @@ function Add-Settings {
         if($theme -ne $defaultParameterValues."Add-Settings:theme"){
             $SettingsObject.theme = $theme}
     }
-
+    <#update default settings object file#>
     if($settingName -eq 'defaults'){
         $host.UI.RawUI.ForegroundColor = 'Green'
         if(!$nc){
@@ -155,21 +155,20 @@ function Add-Settings {
             $defaultParams = Get-Content -Path $PSScriptRoot\settings.psd1 
             <#mod object needs to change only defined values#>
             if($null -ne $bgTransparency){
-                $defaultParams[2] = "'Add-Settings:bgTransparency'=$bgTransparency"}
+                $defaultParams[2] = "`t'Add-Settings:bgTransparency'=$bgTransparency"}
             if($null -ne $colorScheme){
-                $defaultParams[3] = "'Add-Settings:colorScheme'='$colorScheme'"}
+                $defaultParams[3] = "`t'Add-Settings:colorScheme'='$colorScheme'"}
             if($null -ne $fontFace){
-                $defaultParams[4] = "'Add-Settings:fontFace'='$fontFace'"}
+                $defaultParams[4] = "`t'Add-Settings:fontFace'='$fontFace'"}
             if($null -ne $fontSize){
-                $defaultParams[5] = "'Add-Settings:fontSize'=$fontSize"}
+                $defaultParams[5] = "`t'Add-Settings:fontSize'=$fontSize"}
             if($null -ne $fontWeight){
-                $defaultParams[6] = "'Add-Settings:fontWeight'='$fontWeight'"}
+                $defaultParams[6] = "`t'Add-Settings:fontWeight'='$fontWeight'"}
             if($null -ne $transparency){
-                $defaultParams[7] = "'Add-Settings:transparency'=$transparency"}
+                $defaultParams[7] = "`t'Add-Settings:transparency'=$transparency"}
             if($null -ne $theme){
-                $defaultParams[8] = "'Add-Settings:theme'='$theme'"}
+                $defaultParams[8] = "`t'Add-Settings:theme'='$theme'"}
             $defaultParams | Set-Content -Path $PSScriptRoot\settings.psd1 -Force
-            .$PSSCriptRoot/Set-Defaults
         } else {
             return
         }
@@ -202,7 +201,9 @@ function Switch-Profile {
         return
     }
     if($settingName -eq 'defaults'){
-        $PSDefaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value
+        <#we should only do this, if the defaults aren't in the session, why don't we run the defaults script?#>
+        <#$PSDefaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value#>
+        .$PSSCriptRoot/Set-Defaults
         return pps defaults -r -nc
         <#the grandparent scope never changes because a new instance isn't created after setting the values#>
         <#we just need to reset the session values or run set-defaults after the file has been written#>

@@ -4,3 +4,4 @@ $PSDefaultParameterValues = $defaultsHashTable
 $PSDefaultParameterValues.Add("Add-Settings:backgroundImage", "$PSScriptRoot\img\background.jpg")
 <#reset if environment has been set#>
 $PSDefaultParameterValues["Add-Settings:backgroundImage"] = "$env:PowerShellHome\Images\background.jpg"
+write-host $PSDefaultParameterValues."Add-Settings:opacity"
