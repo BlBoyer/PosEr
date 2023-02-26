@@ -119,7 +119,14 @@ function Add-Settings {
         $defaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value
         <#just update the object where val isn't default, duh#>
         if($backgroundImage -ne $defaultParameterValues."Add-Settings:backgroundImage"){
-        $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage}
+            $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage
+            <#copy both and pt new img in folder#>
+            $date = Get-Date -format 'MM-dd-yyyy_hhmmss'
+            Copy-Item -Path $defaultParameterValues."Add-Settings:backgroundImage" `
+            -Destination "$env:PowerShellHome\Images\$date.jpg"
+            Copy-Item -Path $backgroundImage `
+            -Destination $defaultParameterValues."Add-Settings:backgroundImage"
+        }
         if($bgTransparency -ne $defaultParameterValues."Add-Settings:bgTransparency"){
             $SettingsObject.profiles.defaults.backgroundImageOpacity = $bgTransparency}
         if($colorScheme -ne $defaultParameterValues."Add-Settings:colorScheme"){
