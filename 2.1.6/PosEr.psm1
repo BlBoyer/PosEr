@@ -116,30 +116,29 @@ function Add-Settings {
         }
     } else {
         <#update the settings object#>
-        <#we're getting the original scope here, which doesn't get updated#>
-        $defaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value
-        if($backgroundImage -ne $defaultParameterValues."Add-Settings:backgroundImage"){
+        .$PSSCriptRoot/Set-Defaults
+        if($backgroundImage -ne $PSDefaultParameterValues."Add-Settings:backgroundImage"){
             $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage
             <#copy both and pt new img in folder#>
             $date = Get-Date -format 'MM-dd-yyyy_hhmmss'
-            Copy-Item -Path $defaultParameterValues."Add-Settings:backgroundImage" `
+            Copy-Item -Path $PSDefaultParameterValues."Add-Settings:backgroundImage" `
             -Destination "$env:PowerShellHome\Images\$date.jpg"
             Copy-Item -Path $backgroundImage `
-            -Destination $defaultParameterValues."Add-Settings:backgroundImage"
+            -Destination $PSDefaultParameterValues."Add-Settings:backgroundImage"
         }
-        if($bgTransparency -ne $defaultParameterValues."Add-Settings:bgTransparency"){
+        if($bgTransparency -ne $PSDefaultParameterValues."Add-Settings:bgTransparency"){
             $SettingsObject.profiles.defaults.backgroundImageOpacity = $bgTransparency}
-        if($colorScheme -ne $defaultParameterValues."Add-Settings:colorScheme"){
+        if($colorScheme -ne $PSDefaultParameterValues."Add-Settings:colorScheme"){
             $SettingsObject.profiles.defaults.colorScheme = $colorScheme}
-        if($fontFace -ne $defaultParameterValues."Add-Settings:fontFace"){
+        if($fontFace -ne $PSDefaultParameterValues."Add-Settings:fontFace"){
             $SettingsObject.profiles.defaults.font.face = $fontFace}
-        if($fontSize -ne $defaultParameterValues."Add-Settings:fontSize"){
+        if($fontSize -ne $PSDefaultParameterValues."Add-Settings:fontSize"){
             $SettingsObject.profiles.defaults.font.size = $fontSize}
-        if($fontWeight -ne $defaultParameterValues."Add-Settings:fontWeight"){
+        if($fontWeight -ne $PSDefaultParameterValues."Add-Settings:fontWeight"){
             $SettingsObject.profiles.defaults.font.weight = $fontWeight}
-        if($transparency -ne $defaultParameterValues."Add-Settings:transparency"){
+        if($transparency -ne $PSDefaultParameterValues."Add-Settings:transparency"){
             $SettingsObject.profiles.defaults.opacity = $transparency}
-        if($theme -ne $defaultParameterValues."Add-Settings:theme"){
+        if($theme -ne $PSDefaultParameterValues."Add-Settings:theme"){
             $SettingsObject.theme = $theme}
     }
     <#update default settings object file#>

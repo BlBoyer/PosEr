@@ -5,7 +5,7 @@
 	'Add-Settings:fontFace'='OCR A'
 	'Add-Settings:fontSize'=13
 	'Add-Settings:fontWeight'='medium'
-	'Add-Settings:transparency'=75
+	'Add-Settings:transparency'=80
 	'Add-Settings:theme'='dark'
     'Switch-Profile:settingName'='defaults'
 }
