@@ -169,6 +169,7 @@ function Add-Settings {
             if($null -ne $theme){
                 $defaultParams[8] = "'Add-Settings:theme'='$theme'"}
             $defaultParams | Set-Content -Path $PSScriptRoot\settings.psd1 -Force
+            .$PSSCriptRoot/Set-Defaults
         } else {
             return
         }
@@ -203,6 +204,8 @@ function Switch-Profile {
     if($settingName -eq 'defaults'){
         $PSDefaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value
         return pps defaults -r -nc
+        <#the grandparent scope never changes because a new instance isn't created after setting the values#>
+        <#we just need to reset the session values or run set-defaults after the file has been written#>
     }
     Copy-Item -Path "$env:PowerShellHome\Settings\$settingName.json" `
      -Destination "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json" `
