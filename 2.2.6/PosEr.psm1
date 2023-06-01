@@ -37,7 +37,7 @@ function Set-Environment {
 
     Copy-Item -Path "$PSScriptRoot\img\background.png" -Destination "$env:PowerShellHome\Images\background.jpg"
 }
-    <#mod validatee set to default paremter with |options|#>
+    <#mod validater set to default paremeter with |options|#>
 function Add-Settings {
     param(
         [ValidateSet('presentation', 'local', 'defaults')]
@@ -49,7 +49,7 @@ function Add-Settings {
         [Alias("bgi")]
         [Parameter()]
         [string] $backgroundImage,
-        [Alias("gbt")]
+        [Alias("bgt")]
         [Parameter()]
         [float] $bgTransparency,
         [Alias("cs")]
@@ -87,8 +87,12 @@ function Add-Settings {
     }
 
     $PSSettings = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json"
-
-    $SettingsObject = Get-Content -Raw $PSSettings | ConvertFrom-Json
+    <#get settingName object, if null, get current $PSSettings object#>
+    if ($settingName -ine 'defaults'){
+        $SettingsObject = Get-Content -Raw "$env:PowerShellHome\Settings\$settingName.json" | ConvertFrom-Json -ErrorAction SilentlyContinue
+    }
+    if($null -eq $settingsObject){
+    $SettingsObject = Get-Content -Raw $PSSettings | ConvertFrom-Json}
 
     <#if $r switch, replace all ungivens to loaded defaults, otherwise only use values in given array#>
     if($r){
@@ -117,7 +121,7 @@ function Add-Settings {
     } else {
         <#update the settings object#>
         .$PSScriptRoot/Set-Defaults
-        if($backgroundImage -ne $PSDefaultParameterValues."Add-Settings:backgroundImage"){
+        if($backgroundImage -ne $settingsObject.profiles.defaults.backgroundImage){
             $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage
             <#copy both and pt new img in folder#>
             $date = Get-Date -format 'MM-dd-yyyy_hhmmss'
@@ -126,23 +130,23 @@ function Add-Settings {
             Copy-Item -Path $backgroundImage `
             -Destination $PSDefaultParameterValues."Add-Settings:backgroundImage"
         }
-        if($bgTransparency -ne $PSDefaultParameterValues."Add-Settings:bgTransparency"){
+        if($bgTransparency -ne $SettingsObject.profiles.defaults.backgroundImageOpacity){
             $SettingsObject.profiles.defaults.backgroundImageOpacity = $bgTransparency}
-        if($colorScheme -ne $PSDefaultParameterValues."Add-Settings:colorScheme"){
+        if($colorScheme -ne $SettingsObject.profiles.defaults.colorScheme){
             $SettingsObject.profiles.defaults.colorScheme = $colorScheme}
-        if($fontFace -ne $PSDefaultParameterValues."Add-Settings:fontFace"){
+        if($fontFace -ne $SettingsObject.profiles.defaults.font.face){
             $SettingsObject.profiles.defaults.font.face = $fontFace}
-        if($fontSize -ne $PSDefaultParameterValues."Add-Settings:fontSize"){
+        if($fontSize -ne $SettingsObject.profiles.defaults.font.size){
             $SettingsObject.profiles.defaults.font.size = $fontSize}
-        if($fontWeight -ne $PSDefaultParameterValues."Add-Settings:fontWeight"){
+        if($fontWeight -ne $SettingsObject.profiles.defaults.font.weight){
             $SettingsObject.profiles.defaults.font.weight = $fontWeight}
-        if($transparency -ne $PSDefaultParameterValues."Add-Settings:transparency"){
+        if($transparency -ne $SettingsObject.profiles.defaults.opacity){
             $SettingsObject.profiles.defaults.opacity = $transparency}
-        if($theme -ne $PSDefaultParameterValues."Add-Settings:theme"){
+        if($theme -ne $SettingsObject.theme){
             $SettingsObject.theme = $theme}
     }
     <#update default settings object file#>
-    if($settingName -eq 'defaults'){
+    if($settingName -ieq 'defaults'){
         $host.UI.RawUI.ForegroundColor = 'Green'
         if(!$nc){
             $continue = Read-Host "Your given values will overwrite your default values, continue?(y/n)"
@@ -178,7 +182,7 @@ function Add-Settings {
     <# necessary Depth level 3, this is subject to change if the powershell settings file obtains further nested values #>
     $SettingsObject | ConvertTo-Json -Depth 100 | Set-Content $outputFile
     
-    if($settingName -ne 'defaults'){
+    if($settingName -ine 'defaults'){
         Switch-Profile($settingName)
     }
 }
