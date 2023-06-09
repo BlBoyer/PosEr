@@ -20,7 +20,7 @@ function Set-Environment {
         Get-Content "$PSScriptRoot\help\environment-help.txt"
         return
     }
-    if($null -eq $PowerShellProfilePath){
+    if(!$PSBoundParameters.ContainsKey('PowerShellProfilePath') -eq $PowerShellProfilePath){
         $PowerShellProfilePath = '$env:USERPROFILE\Documents\WindowsPowerShell'
     }
     $pkgId = Get-AppPackage Microsoft.WindowsTerminal | Select-Object -ExpandProperty PublisherId
@@ -42,10 +42,9 @@ function Add-Settings {
     param(
         [ValidateSet('presentation', 'local', 'defaults')]
         [Parameter(
-            Mandatory=$true,
             HelpMessage="Allowed values: 'presentation', 'local', 'defaults'"
         )]
-        [string] $settingName,
+        [string] $settingName = 'defaults',
         [Alias("bgi")]
         [Parameter()]
         [string] $backgroundImage,
@@ -70,6 +69,9 @@ function Add-Settings {
         [Alias("th")]
         [Parameter()]
         [string] $theme,
+        [Alias("omp")]
+        [Parameter()]
+        [string] $ompTheme,
         [Parameter()]
         [switch] $h,
         [Parameter()]
@@ -77,13 +79,20 @@ function Add-Settings {
         [Parameter()]
         [switch] $nc
     )
-    
     if($h){
         Get-Content "$PSScriptRoot\help\settings-help.txt" 
         return
     }
     if($null -eq $env:PowerShellHome){
         Set-Environment
+    }
+    if($PSBoundParameters.ContainsKey('ompTheme')){
+        write-output "changing posh prompt: $ompTheme"
+        $myProfile = @(Get-Content -Path $Profile)
+        $myProfile[0] = "oh-my-posh init pwsh --config $env:PowerShellPrompts\$ompTheme.json | Invoke-Expression"
+        $myProfile | Set-Content -Path $Profile -Force
+        . $Profile
+        $ompTheme = $null
     }
 
     $PSSettings = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json"
@@ -94,27 +103,27 @@ function Add-Settings {
     if($null -eq $settingsObject){
     $SettingsObject = Get-Content -Raw $PSSettings | ConvertFrom-Json}
 
-    <#if $r switch, replace all ungivens to loaded defaults, otherwise only use values in given array#>
+    <#if $r switch, replace all#>
     if($r){
         $host.UI.RawUI.ForegroundColor = 'Green'
         if(!$nc){
-            $continue = Read-Host "Reset all other settings to defaults?(y/n)"
+            $continue = Read-Host "Reset all settings to defaults?(y/n)"
         } else {
             $continue ='y'
         }
         if($continue -ieq 'y'){
             $SettingsObject.profiles.defaults = [PSCustomObject]@{
-                backgroundImage =  $backgroundImage
-                backgroundImageOpacity =  $bgTransparency
-                colorScheme = $colorScheme
-                font =  [PSCustomObject]@{
-                    face =  $fontFace
-                    size = $fontSize
-                    weight = $fontWeight
+                backgroundImage = $PRDefaultParameterValues."Add-Settings:backgroundImage"
+                backgroundImageOpacity = $PRDefaultParameterValues."Add-Settings:bgTransparency"
+                colorScheme = $PRDefaultParameterValues."Add-Settings:colorScheme"
+                font = [PSCustomObject]@{
+                    face = $PRDefaultParameterValues."Add-Settings:fontFace"
+                    size = $PRDefaultParameterValues."Add-Settings:fontSize"
+                    weight = $PRDefaultParameterValues."Add-Settings:fontWeight"
                 }
-                opacity = $transparency
+                opacity = $PRDefaultParameterValues."Add-Settings:transparency"
             }
-            $SettingsObject.theme = $theme
+            $SettingsObject.theme = $PRDefaultParameterValues."Add-Settings:theme"
         } else {
             return
         }
@@ -123,26 +132,27 @@ function Add-Settings {
         .$PSScriptRoot/Set-Defaults
         if($backgroundImage -ne $settingsObject.profiles.defaults.backgroundImage){
             $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage
-            <#copy both and pt new img in folder#>
+            <#copy both and put new img in folder#>
             $date = Get-Date -format 'MM-dd-yyyy_hhmmss'
-            Copy-Item -Path $PSDefaultParameterValues."Add-Settings:backgroundImage" `
+            Copy-Item -Path $PRDefaultParameterValues."Add-Settings:backgroundImage" `
             -Destination "$env:PowerShellHome\Images\$date.jpg"
             Copy-Item -Path $backgroundImage `
-            -Destination $PSDefaultParameterValues."Add-Settings:backgroundImage"
+            -Destination $PRDefaultParameterValues."Add-Settings:backgroundImage"
         }
-        if($bgTransparency -ne $SettingsObject.profiles.defaults.backgroundImageOpacity){
+
+        if($bgTransparency -ne $SettingsObject.profiles.defaults.backgroundImageOpacity -and $PSBoundParameters.ContainsKey('bgTransparency')){
             $SettingsObject.profiles.defaults.backgroundImageOpacity = $bgTransparency}
-        if($colorScheme -ne $SettingsObject.profiles.defaults.colorScheme){
+        if($colorScheme -ne $SettingsObject.profiles.defaults.colorScheme -and $PSBoundParameters.ContainsKey('colorScheme')){
             $SettingsObject.profiles.defaults.colorScheme = $colorScheme}
-        if($fontFace -ne $SettingsObject.profiles.defaults.font.face){
+        if($fontFace -ne $SettingsObject.profiles.defaults.font.face -and $PSBoundParameters.ContainsKey('fontFace')){
             $SettingsObject.profiles.defaults.font.face = $fontFace}
-        if($fontSize -ne $SettingsObject.profiles.defaults.font.size){
+        if($fontSize -ne $SettingsObject.profiles.defaults.font.size -and $PSBoundParameters.ContainsKey('fontSize')){
             $SettingsObject.profiles.defaults.font.size = $fontSize}
-        if($fontWeight -ne $SettingsObject.profiles.defaults.font.weight){
+        if($fontWeight -ne $SettingsObject.profiles.defaults.font.weight -and $PSBoundParameters.ContainsKey('fontWeight')){
             $SettingsObject.profiles.defaults.font.weight = $fontWeight}
-        if($transparency -ne $SettingsObject.profiles.defaults.opacity){
+        if($transparency -ne $SettingsObject.profiles.defaults.opacity -and $PSBoundParameters.ContainsKey('transparency')){
             $SettingsObject.profiles.defaults.opacity = $transparency}
-        if($theme -ne $SettingsObject.theme){
+        if($theme -ne $SettingsObject.theme -and $PSBoundParameters.ContainsKey('theme')){
             $SettingsObject.theme = $theme}
     }
     <#update default settings object file#>
@@ -156,21 +166,20 @@ function Add-Settings {
         if ($continue -ieq "y"){
             $outputFile = $PSSettings
             $defaultParams = Get-Content -Path $PSScriptRoot\settings.psd1 
-            <#mod object needs to change only defined values#>
-            if($null -ne $bgTransparency){
-                $defaultParams[2] = "`t'Add-Settings:bgTransparency'=$bgTransparency"}
-            if($null -ne $colorScheme){
-                $defaultParams[3] = "`t'Add-Settings:colorScheme'='$colorScheme'"}
-            if($null -ne $fontFace){
-                $defaultParams[4] = "`t'Add-Settings:fontFace'='$fontFace'"}
-            if($null -ne $fontSize){
-                $defaultParams[5] = "`t'Add-Settings:fontSize'=$fontSize"}
-            if($null -ne $fontWeight){
-                $defaultParams[6] = "`t'Add-Settings:fontWeight'='$fontWeight'"}
-            if($null -ne $transparency){
-                $defaultParams[7] = "`t'Add-Settings:transparency'=$transparency"}
-            if($null -ne $theme){
-                $defaultParams[8] = "`t'Add-Settings:theme'='$theme'"}
+            if($PSBoundParameters.ContainsKey('bgTransparency')){
+                $defaultParams[1] = "`t'Add-Settings:bgTransparency'=$bgTransparency"}
+            if($PSBoundParameters.ContainsKey('colorScheme')){
+                $defaultParams[2] = "`t'Add-Settings:colorScheme'='$colorScheme'"}
+            if($PSBoundParameters.ContainsKey('fontFace')){
+                $defaultParams[3] = "`t'Add-Settings:fontFace'='$fontFace'"}
+            if($PSBoundParameters.ContainsKey('fontSize')){
+                $defaultParams[4] = "`t'Add-Settings:fontSize'=$fontSize"}
+            if($PSBoundParameters.ContainsKey('fontWeight')){
+                $defaultParams[5] = "`t'Add-Settings:fontWeight'='$fontWeight'"}
+            if($PSBoundParameters.ContainsKey('transparency')){
+                $defaultParams[6] = "`t'Add-Settings:transparency'=$transparency"}
+            if($PSBoundParameters.ContainsKey('theme')){
+                $defaultParams[7] = "`t'Add-Settings:theme'='$theme'"}
             $defaultParams | Set-Content -Path $PSScriptRoot\settings.psd1 -Force
         } else {
             return
@@ -191,10 +200,9 @@ function Switch-Profile {
     param(
         [ValidateSet('presentation', 'local', 'defaults')]
         [Parameter(
-            Mandatory=$true,
             HelpMessage="Allowed values: 'presentation', 'local', 'defaults"
         )]
-        [string] $settingName,
+        [string] $settingName = 'defaults',
         [Parameter()]
         [switch] $h
     )
@@ -204,12 +212,8 @@ function Switch-Profile {
         return
     }
     if($settingName -eq 'defaults'){
-        <#we should only do this, if the defaults aren't in the session, why don't we run the defaults script?#>
-        <#$PSDefaultParameterValues = (Get-Variable -Name PSDefaultParameterValues -Scope 2).Value#>
         .$PSSCriptRoot/Set-Defaults
         return pps defaults -r -nc
-        <#the grandparent scope never changes because a new instance isn't created after setting the values#>
-        <#we just need to reset the session values or run set-defaults after the file has been written#>
     }
     Copy-Item -Path "$env:PowerShellHome\Settings\$settingName.json" `
      -Destination "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json" `
