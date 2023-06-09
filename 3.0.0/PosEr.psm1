@@ -40,41 +40,62 @@ function Set-Environment {
     <#mod validater set to default paremeter with |options|#>
 function Add-Settings {
     param(
-        [ValidateSet('presentation', 'local', 'defaults')]
         [Parameter(
             HelpMessage="Allowed values: 'presentation', 'local', 'defaults'"
-        )]
+            )]
+        [ValidateSet('presentation', 'local', 'defaults')]
         [string] $settingName = 'defaults',
+
+        [Parameter()]
         [Alias("bgi")]
-        [Parameter()]
+        [ValidateScript({Test-Path $_})]
         [string] $backgroundImage,
+
+        [Parameter()]
         [Alias("bgt")]
-        [Parameter()]
+        [ValidateRange(0.0, 1.0)]
         [float] $bgTransparency,
+
+        [Parameter()]
         [Alias("cs")]
-        [Parameter()]
+        [ValidateSet("Campbell", "Campbell Powershell", "One Half Dark", "One Half Light",
+        "Solarized Dark", "Solarized Light", "Tango Dark", "Tango Light", "Vintage")]
         [string] $colorScheme,
+
+        [Parameter()]
         [Alias("ff")]
-        [Parameter()]
         [string] $fontFace,
+
+        [Parameter()]
         [Alias("fs")]
-        [Parameter()]
+        [ValidateRange(8,20)]
         [int] $fontSize,
+
+        [Parameter()]
         [Alias("fw")]
-        [Parameter()]
+        [ValidateSet("Thin", "Extra-Light", 'Light', "Semi-Light", "Normal", "Medium", "Semi-Bold", 
+        "Bold", "Extra-Bold", "Black", "Extra-Black", "Custom")]
         [string] $fontWeight,
-        [Alias("ty")]
+
         [Parameter()]
+        [Alias("ty")]
+        [ValidateRange(0,100)]
         [int] $transparency,
+
         [Alias("th")]
+        [ValidateSet("dark", "light", "system")]
         [Parameter()]
         [string] $theme,
+
         [Parameter()]
         [switch] $p,
+
         [Parameter()]
         [switch] $h,
+
         [Parameter()]
         [switch] $r,
+
         [Parameter()]
         [switch] $nc
     )
