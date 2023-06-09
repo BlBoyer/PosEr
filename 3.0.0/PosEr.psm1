@@ -69,9 +69,8 @@ function Add-Settings {
         [Alias("th")]
         [Parameter()]
         [string] $theme,
-        [Alias("omp")]
         [Parameter()]
-        [string] $ompTheme,
+        [switch] $p,
         [Parameter()]
         [switch] $h,
         [Parameter()]
@@ -86,13 +85,10 @@ function Add-Settings {
     if($null -eq $env:PowerShellHome){
         Set-Environment
     }
-    if($PSBoundParameters.ContainsKey('ompTheme')){
-        write-output "changing posh prompt: $ompTheme"
-        $myProfile = @(Get-Content -Path $Profile)
-        $myProfile[0] = "oh-my-posh init pwsh --config $env:PowerShellPrompts\$ompTheme.json | Invoke-Expression"
-        $myProfile | Set-Content -Path $Profile -Force
-        . $Profile
-        $ompTheme = $null
+
+    if($p){
+        <#execute prompt function#>
+        Set-OhMyPrompt
     }
 
     $PSSettings = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json"
@@ -130,7 +126,7 @@ function Add-Settings {
     } else {
         <#update the settings object#>
         .$PSScriptRoot/Set-Defaults
-        if($backgroundImage -ne $settingsObject.profiles.defaults.backgroundImage){
+        if($backgroundImage -ne $settingsObject.profiles.defaults.backgroundImage -and $PSBoundParameters.ContainsKey('backgroundImage')){
             $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage
             <#copy both and put new img in folder#>
             $date = Get-Date -format 'MM-dd-yyyy_hhmmss'
@@ -222,6 +218,31 @@ function Switch-Profile {
         Write-Host `n "No saved profile settings for this option found." `n -ForegroundColor Magenta
     }
 } 
+
+function Set-OhMyPrompt(){
+    <#get filenames for themes#>
+    $themes = Get-Item -Path "$env:PowershellPrompts/*" -Include *.json
+    $names = $themes | Get-ItemPropertyValue -Name BaseName
+    Write-Output $names "`n"
+    $selection = Read-Host "Please select an option (1-$($themes.Count))"
+    
+    switch ($selection) {
+        { $_ -ge 1 -and $_ -le $themes.Count } {
+            $index = [int]$selection - 1
+            $selectedOption = $themes[$index]
+            write-output "changing posh prompt: $names[$index]"
+            # Perform actions based on the selected option
+            $myProfile = @(Get-Content -Path $Profile)
+            $myProfile[0] = "oh-my-posh init pwsh --config $selectedOption | Invoke-Expression"
+            $myProfile | Set-Content -Path $Profile -Force
+            . $Profile
+            <#$ompTheme = $null#>
+        }
+        default {
+            Write-Host "Invalid selection. Please try again."
+        }
+    }
+}
 
 New-Alias -Name chp  -Value Switch-Profile -Description 'Change between profiles.'
 New-Alias -Name pps -Value Add-Settings -Description 'Modify settings for profiles.'

@@ -3,4 +3,4 @@ $PRDefaultParameterValues = $defaultsHashTable
 <#cannot import objects with dynamic variables, should set this the Add-Settings script#>
 $PRDefaultParameterValues.Add("Add-Settings:backgroundImage", "$PSScriptRoot\img\background.jpg")
 <#reset if environment has been set#>
-$PSDefaultParameterValues["Add-Settings:backgroundImage"] = "$env:PowerShellHome\Images\background.jpg"
+$PRDefaultParameterValues["Add-Settings:backgroundImage"] = "$env:PowerShellHome\Images\background.jpg"
