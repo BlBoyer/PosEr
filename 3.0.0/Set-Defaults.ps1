@@ -4,3 +4,5 @@ $PRDefaultParameterValues = $defaultsHashTable
 $PRDefaultParameterValues.Add("Add-Settings:backgroundImage", "$PSScriptRoot\img\background.jpg")
 <#reset if environment has been set#>
 $PRDefaultParameterValues["Add-Settings:backgroundImage"] = "$env:PowerShellHome\Images\background.jpg"
+
+$PRDefaultParameterValues.Add("Add-Settings:tabTitle", "$env:Username - devConsole")
