@@ -1,10 +1,3 @@
-<#Setup Environment Variables and dir structure if it doesn't exist#>
-<#
-.SYNOPSIS
-This module contains three functions to allow you to easily create and switch between Powershell profile settings.
-It uses the default settings for Powershell and modifies them accordingly, instead of creating multiple profiles.
-It can easily be adapted to create multiple profiles, or modify other profile settings as well.
-#>
 function Set-Environment {
     param (
         [Parameter(
@@ -96,6 +89,25 @@ function New-Settings {
     $PSSettings | ConvertTo-Json -Depth 100 | Set-Content $outputFile
     $outputFile = $null
 }
+
+<#
+.SYNOPSIS
+
+Creates settings configurations for your windows terminal application.
+
+.EXAMPLE
+
+pps -bgt .5 -cs "Solarized Light"
+
+.EXAMPLE
+
+pps -fs 15 -el $true -omp
+
+.EXAMPLE
+
+pps -bgi "C:/users/me/images/newBackground.jpg" -ty 60
+
+#>
 function Add-Settings {
     param(
         [Parameter(
@@ -103,191 +115,260 @@ function Add-Settings {
             )]
         [ValidateSet('presentation', 'local', 'defaults')]
         [string] $settingName = 'defaults',
-    <#settings#>
+
+    <#Column width of console on start#>
+    <#accepts number in range: 0-180#>
         [Parameter()]
-        [Alias("col")]
+        [Alias('col')]
         [ValidateRange(10,180)]
         [int] $initCols,
 
+    <#Row height of console on start#>
+    <#accepts number in range: 10-80#>
         [Parameter()]
-        [Alias("row")]
+        [Alias('row')]
         [ValidateRange(10,80)]
         [int] $initRows,
 
-        
+    <#New tab placement#>
+    <#accepts values: 'afterCurrentTab' | 'afterLastTab'#>
         [Parameter()]
-        [Alias("tabp")]
-        [ValidateSet("afterCurrentTab","afterLastTab")]
+        [Alias('tabp')]
+        [ValidateSet('afterCurrentTab','afterLastTab')]
         [string] $newTabPlacement,
-        
+
+    <#Width of tab#>
+    <#accepts values: 10-80#>
         [Parameter()]
-        [Alias("twm")]
-        [ValidateSet("compact","equal","titleLength")]
+        [Alias('twm')]
+        [ValidateSet('compact','equal','titleLength')]
         [string] $tabWidthMode,
-        
-        [Alias("th")]
-        [ValidateSet("dark", "light", "system", "custom")]
+
+    <#Theme of the console#>
+    <#accepts values: 'dark' | 'light' | 'system' | 'custom'#>
+        [Alias('th')]
+        [ValidateSet('dark', 'light', 'system', 'custom')]
         [Parameter()]
         [string] $theme,
-        
+
+    <#Acrylic texture on tab#>
+    <#accepts boolean: $true | $false#>
         [Parameter()]
-        [Alias("act")]
+        [Alias('act')]
         [bool] $useAcrylicTab,
-        
+
+    <#Attachment behavior of starting another instance of terminal#>
+    <#accepts values: 'useAnyExisting' | 'useExisting' | 'useNew'#>
         [Parameter()]
-        [Alias("nta")]
-        [ValidateSet("useAnyExisting", "useExisting","useNew")]
+        [Alias('nta')]
+        [ValidateSet('useAnyExisting','useExisting','useNew')]
         [string] $newTabAttach,
 
-    <#themes accessed by index#>
-        <#values can be 'accent' 'terminalBackground' or rrggbb or rrggbbaa color#>
+    <#Tab background#>
+    <#accepted values: 'accent' | 'terminalBackground' | rrggbb or rrggbbaa color#>
         [Parameter()]
-        [Alias("tbg")]
+        [Alias('tbg')]
         [string] $tabBg,
 
+    <#Tab close on exit behavior#>
+    <#accepted values: 'always' | 'hover' | 'never'#>
         [Parameter()]
-        [Alias("tcb")]
-        [ValidateSet("always","hover","never")]
+        [Alias('tcb')]
+        [ValidateSet('always','hover','never')]
         [string] $tabCloseButton,
 
-        <#values can be 'accent' 'terminalBackground' or rrggbb or rrggbbaa color#>
+    <#Unfocused tab style#>
+    <#accepted values: 'accent' | 'terminalBackground' | rrggbb or rrggbbaa color#>
         [Parameter()]
-        [Alias("tsu")]
+        [Alias('tsu')]
         [string] $tabStyleUnfocused,
 
-        <#used for controls#>
+    <#Console window controls theme#>
+    <#accepted values: 'dark' | 'light' | 'system'#>
         [Parameter()]
-        [Alias("wth")]
-        [ValidateSet("dark","light","system")]
+        [Alias('wth')]
+        [ValidateSet('dark','light','system')]
         [string] $windowTheme,
 
-    <#defaults#>
-    
+    <#Automatic adjustment of contrast to aid difficult to distinguish color schemes#>
+    <#accepts values: 'indexed' | 'always' | 'never'#>
         [Parameter()]
-        [Alias("ca")]
-        [ValidateSet("indexed", "always", "never")]
+        [Alias('ca')]
+        [ValidateSet('indexed', 'always', 'never')]
         [string] $contrastAdjust,
 
+    <#Image to use for the background#>
+    <#accepts file path- should be full path including extension#>
         [Parameter()]
-        [Alias("bgi")]
+        [Alias('bgi')]
         [ValidateScript({Test-Path $_})]
         [string] $backgroundImage,
-        
+
+    <#Transparency of the background#>
+    <#accepts float in range: 0-1#>
         [Parameter()]
-        [Alias("bgt")]
+        [Alias('bgt')]
         [ValidateRange(0.0, 1.0)]
         [float] $bgTransparency,
 
+    <#Notification behavior of terminal#>
+    <#accepts an array including one or more the following values: 'audible', 'taskbar', 'window'#>
+    <#enter a single string value or an array: ('audible', 'taskbar', 'window')#>
         [Parameter()]
-        [Alias("bell")]
-        [ValidateScript({@("audible", "taskbar", "window").Contains($_)})]
+        [Alias('bell')]
+        [ValidateScript({('audible', 'taskbar', 'window').Contains($_)})]
         [string[]] $bellOptions,
-        
+
+    <#Color scheme for the terminal#>
+    <#accepted values: 'Campbell' | 'Campbell Powershell' | 'One Half Dark' | 'One Half Light' |
+        'Solarized Dark' | 'Solarized Light' | 'Tango Dark' | 'Tango Light' | 'Vintage'#>
         [Parameter()]
-        [Alias("cs")]
-        [ValidateSet("Campbell", "Campbell Powershell", "One Half Dark", "One Half Light",
-        "Solarized Dark", "Solarized Light", "Tango Dark", "Tango Light", "Vintage")]
+        [Alias('cs')]
+        [ValidateSet('Campbell', 'Campbell Powershell', 'One Half Dark', 'One Half Light',
+        'Solarized Dark', 'Solarized Light', 'Tango Dark', 'Tango Light', 'Vintage')]
         [string] $colorScheme,
 
+    <#Behavior upon exiting script#>
+    <#accepted values: 'never' | 'automatic' | 'always' | 'graceful'#>
         [Parameter()]
-        [Alias("ctb")]
-        [ValidateSet("never", "automatic", "always", "graceful")]
+        [Alias('ctb')]
+        [ValidateSet('never', 'automatic', 'always', 'graceful')]
         [string] $closeTabBehaviour,
-        
+
+    <#Cursor height#>
+    <#accepts number in range: 0-100#>
         [Parameter()]
-        [Alias("ch")]
+        [Alias('ch')]
         [ValidateRange(0,100)]
         [int]
         $cursorHeight,
-        
+
+    <#Cursor shape#>
+    <#accepted values: 'bar' | 'doubleUnderscore' | 'emptyBox' | 'filledBox' | 'underscore' | 'vintage'#>
         [Parameter()]
-        [Alias("cu")]
-        [ValidateSet("bar", "doubleUnderscore", "emptyBox", "filledBox", "underscore", "vintage")]
+        [Alias('cu')]
+        [ValidateSet('bar', 'doubleUnderscore', 'emptyBox', 'filledBox', 'underscore', 'vintage')]
         [string]
         $cursorShape,
 
+    <#Run powershell as admin#>
+    <#accepts boolean: $true | $false#>
         [Parameter()]
-        [Alias("su")]
+        [Alias('su')]
         [bool]
         $elevate,
-        
+
+    <#Set the font face#>
+    <#accepts a string value of any font installed on your machine#>
+    <#It is recommended to use NerdFonts#>
         [Parameter()]
-        [Alias("ff")]
+        [Alias('ff')]
         [string] $fontFace,
         
         [Parameter()]
-        [Alias("fs")]
+        [Alias('fs')]
         [ValidateRange(8,20)]
         [int] $fontSize,
-        
+
+    <#Font weight#>
+    <#accepted values: 'Thin' | 'Extra-Light' | 'Light' | 'Semi-Light' | 'Normal' | 'Medium' | 'Semi-Bold' | 
+        'Bold' | 'Extra-Bold' | 'Black' | 'Extra-Black' | 'Custom'#>
         [Parameter()]
-        [Alias("fw")]
-        [ValidateSet("Thin", "Extra-Light", 'Light', "Semi-Light", "Normal", "Medium", "Semi-Bold", 
-        "Bold", "Extra-Bold", "Black", "Extra-Black", "Custom")]
+        [Alias('fw')]
+        [ValidateSet('Thin', 'Extra-Light', 'Light', 'Semi-Light', 'Normal', 'Medium', 'Semi-Bold', 
+        'Bold', 'Extra-Bold', 'Black', 'Extra-Black', 'Custom')]
         [string] $fontWeight,
-        
+
+    <#Intense font style#>
+    <#accepted values: 'all' | 'bright' | 'bold' | 'none'#>
         [Parameter()]
-        [Alias("istyle")]
-        [ValidateSet("all","bright","bold","none")]
+        [Alias('istyle')]
+        [ValidateSet('all','bright','bold','none')]
         [string]
         $intenseStyle,
-        
+
+    <#Transparency of the window#>
+    <#accepts number in range: 1-100#>
         [Parameter()]
-        [Alias("ty")]
+        [Alias('ty')]
         [ValidateRange(0,100)]
         [int] $transparency,
-        
+
+    <#Padding of the console text#>
+    <#accepts number in range: 0-30#>
         [Parameter()]
-        [Alias("pd")]
+        [Alias('pd')]
         [ValidateRange(0,30)]
         [int]
         $padding,
 
+    <#Scrollbar visibility#>
+    <#accepted values: 'always' | 'hidden' | 'visible'#>
         [Parameter()]
-        [Alias("scroll")]
+        [Alias('scroll')]
         [ValidateSet('always','hidden','visible')]
         [string]
         $scrollbar,
 
+    <#Ignore application requests to change the title of the window#>
+    <#accepts boolean: $true | $false#>
         [Parameter()]
-        [Alias("supt")]
+        [Alias('supt')]
         [bool]
         $supressTitleChange,
 
+    <#Use diffferent key binding for ctrl+alt key combo for international and other non-standard keyboard settings#>
+    <#accepts boolean: $true | $false#>
         [Parameter()]
-        [Alias("alta")]
-        [bool] $altGrAliasing,        
-        
+        [Alias('alta')]
+        [bool] $altGrAliasing, 
+
+    <#Snap console to input line when writing to the cli#>
+    <#accepts boolean: $true | $false#>
         [Parameter()]
-        [Alias("snap")]
+        [Alias('snap')]
         [bool]
         $inputSnap,
-   
+
+    <#Default tab title#>
+    <#Accepts a string value to set the tab title the default is set by the SetDefaults command#>
         [Parameter()]
-        [Alias("title")]
+        [Alias('title')]
         [ValidateScript({$_.Length -le 30 })]
         [string]
         $tabTitle,
 
+    <#Use acrylic texture on background#>
+    <#accepts boolean: $true | $false#>
         [Parameter()]
-        [Alias("acbg")]
+        [Alias('acbg')]
         [bool]
         $acrylicBg,
 
+    <#Use different rendering engine for text#>
+    <#accepts boolean: $true | $false#>
         [Parameter()]
-        [Alias("ae")]
+        [Alias('ae')]
         [bool]
         $atlasEngine,
 
+    <#Oh-My-Posh theme setting#>
+    <#Switches do not take arguments#>
         [Parameter()]
         [switch] $omp,
 
+    <#Help, this option is deprecated#>
+    <#Switches do not take arguments#>
         [Parameter()]
         [switch] $h,
 
+    <#Reset all values of the current profile setting to defaults#>
+    <#Switches do not take arguments#>
         [Parameter()]
         [switch] $r,
 
+    <#No confirm when setting/resetting default values#>
+    <#Switches do not take arguments#>
         [Parameter()]
         [switch] $nc
     )
@@ -428,8 +509,8 @@ function Add-Settings {
         }
         if($bgTransparency -ne $SettingsObject.profiles.defaults.backgroundImageOpacity -and $PSBoundParameters.ContainsKey('bgTransparency')){
             $SettingsObject.profiles.defaults.backgroundImageOpacity = $bgTransparency}
-            if($bellStyle -ne $SettingsObject.profiles.defaults.bellStyle -and $PSBoundParameters.ContainsKey('bellOptions')){
-                $SettingsObject.profiles.defaults.bellStyle = $bellStyle
+            if($bellOptions -ne $SettingsObject.profiles.defaults.bellStyle -and $PSBoundParameters.ContainsKey('bellOptions')){
+                $SettingsObject.profiles.defaults.bellStyle = $bellOptions
             }
         if($colorScheme -ne $SettingsObject.profiles.defaults.colorScheme -and $PSBoundParameters.ContainsKey('colorScheme')){
             $SettingsObject.profiles.defaults.colorScheme = $colorScheme}
@@ -532,6 +613,24 @@ function Add-Settings {
     }
 }
 
+<#
+.SYNOPSIS
+
+Changes the settings profile of your windows terminal application.
+
+.EXAMPLE
+
+chp local
+
+.EXAMPLE
+
+chp presentation
+
+.EXAMPLE
+
+chp defaults
+
+#>
 function Switch-Profile {
     param(
         [ValidateSet('presentation', 'local', 'defaults')]
