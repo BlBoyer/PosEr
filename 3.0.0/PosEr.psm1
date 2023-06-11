@@ -1,19 +1,20 @@
+<#
+.SYNOPSIS
+
+This command sets up your environment variables to work with PosEr.
+
+#>
 function Set-Environment {
     param (
+        <#String path to the DIRECTORY containing your PowerShell profile.ps1#>
+        <#default is $env:USERPROFILE\Documents\WindowsPowerShell#>
         [Parameter(
-            Mandatory = $true,
-            HelpMessage = "Must be a valid directory, default is USERPROFILE\Documents\WindowsPowerShell"
+            Mandatory = $true
         )]
-        [string] $PowerShellProfilePath,
-        [Parameter()]
-        [switch] $h
+        [string] $PowerShellProfilePath
     )
 
-    if($h){
-        Get-Content "$PSScriptRoot\help\environment-help.txt"
-        return
-    }
-    if(!$PSBoundParameters.ContainsKey('PowerShellProfilePath') -eq $PowerShellProfilePath){
+    if(!$PSBoundParameters.ContainsKey('PowerShellProfilePath')){
         $PowerShellProfilePath = '$env:USERPROFILE\Documents\WindowsPowerShell'
     }
     $pkgId = Get-AppPackage Microsoft.WindowsTerminal | Select-Object -ExpandProperty PublisherId
@@ -357,11 +358,6 @@ function Add-Settings {
         [Parameter()]
         [switch] $omp,
 
-    <#Help, this option is deprecated#>
-    <#Switches do not take arguments#>
-        [Parameter()]
-        [switch] $h,
-
     <#Reset all values of the current profile setting to defaults#>
     <#Switches do not take arguments#>
         [Parameter()]
@@ -377,11 +373,6 @@ function Add-Settings {
     if (!(Test-Path -Path "$env:PowerShellHome\Settings\local.json") -or !(Test-Path -Path "$env:PowerShellHome\Settings\presentation.json")){
         Write-Host "No Settings Present" -ForegroundColor Magenta
         New-Settings
-        return
-    }
-   
-    if($h){
-        Get-Content "$PSScriptRoot\help\settings-help.txt" 
         return
     }
 
@@ -638,14 +629,8 @@ function Switch-Profile {
             HelpMessage="Allowed values: 'presentation', 'local', 'defaults"
         )]
         [string] $settingName = 'defaults',
-        [Parameter()]
-        [switch] $h
     )
 
-    if($h){
-        Get-Content "$PSScriptRoot\help\profiles-help.txt"
-        return
-    }
     if($settingName -eq 'defaults'){
         .$PSSCriptRoot/Set-Defaults
         return pps defaults -r -nc

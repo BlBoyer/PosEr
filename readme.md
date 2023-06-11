@@ -8,19 +8,22 @@
 
 2. Copy the module into your modules directory. You can find the directories availiable using the command:
 
-<pre>PWSH> $env:PSModulePath</pre>
+```pwsh
+$env:PSModulePath
+```
 
-3. Then use the following command to import the module,
+1. Then use the following command to import the module,
 
-<pre>PWSH> Import-Module PosEr</pre>  
+```pwsh
+Import-Module PosEr
+```
 
-The module contains three functions:
+The module contains four functions for your use:
 
 * Set-Environment
+* New-Settings
 * Add-Settings
 * Switch-Profile
-
-Each function can be used with the  __`'-h'`__ switch to display command parameters and information.  
 
 Use the __`'Set-Environment'`__ command and supply the '__PowerShellProfilePath__' parameter with the folder you have your PowerShell profile script in.  
 The module will then create environment variables and folders to use.  
@@ -32,8 +35,7 @@ Use the __`'New-Settings'`__ command to run the initial setup for the terminal s
 This module will setup a folder for __'oh-my-posh'__ prompts, <font color="magenta">but it is not required to use it</font>. If you don't have it, you can get it [__here__](https://ohmyposh.dev/).  
 You should install nerdfonts if you plan on using __'oh-my-posh'__.  
 
-Find the '__Prompts__' folder. You can add your prompt themes here, and use your profile to set the prompt. For example:  
-`oh-my-posh init pwsh --config $env:PowerShellPrompts\currentTheme.json | Invoke-Expression`  
+Find the '__Prompts__' folder. You can add your prompt themes here for later use with the module.
 &nbsp;
 
 <mark>*You can use aliases for the following commands, see [*__Aliases__*](#use-the-aliases).</mark>
@@ -42,7 +44,9 @@ Find the '__Prompts__' folder. You can add your prompt themes here, and use your
 
 To change the default settings, you can use the __`'Add_Settings'`__ command like this:  
 
-<pre>Add-Settings defaults [-option] [value]</pre>
+```pwsh
+Add-Settings defaults [-option] [value]
+```
 
 <mark>Hint:</mark>
 <font color=Magenta>Using the __Add-Settings__ or __Switch-Profile__ commands without a setting name will default to 'defaults'.</font>  
@@ -91,7 +95,9 @@ To save settings, there are two profiles available that can be created with the 
 
 To use one of the profiles, use the __`'Switch-Profile'`__ command. Syntax:
 
-<pre>Switch-Profile [setting_name]</pre>
+```pwsh
+Switch-Profile [setting_name]
+```
 
 Available options are `'defaults'`, `'local'`, & `'presentation'`.  
 &nbsp;
@@ -101,20 +107,20 @@ Available options are `'defaults'`, `'local'`, & `'presentation'`.
 Aliases are provide to make the setting functions faster at the keyboard. For the __`'Add-Settings'`__ command, use the alias __`'pps'`__; For the __`'Switch-Profile'`__ command, use the alias __`'chp'`__.  
 
 Examples:  
-<pre>
+
+```pwsh
 pps -fontSize 18 -fontWeight 'Bold'
 pps local -transparency 30
 pps presentation -colorScheme "Tango Dark"
 chp presentation
-</pre>
-
-<mark></mark>
+```
 
 The parameters have aliases that can be used as well:  
-<pre>
+
+```pwsh
 pps -fs 14 -ff 'Cambridge'
 pps presentation -cs 'Vintage'
-</pre>
+```
 
 ### *Switches*
 
@@ -124,7 +130,17 @@ pps presentation -cs 'Vintage'
 
 *Use __`'pps -r'`__ with the '__local__' or '__presentation__' setting to reset the values to defaults.  
 *Use __`'pps -nc'`__ with the '__defaults__' setting to skip confirmation of changing the module's default values.
-*Use __`'pps -omp'`__ to set the oh-my-posh prompt theme.  
+*Use __`'pps -omp'`__ to set the oh-my-posh prompt theme.
+
+#### Setting the prompt theme
+
+In your profile.ps1 you should have the following line for loading your '__oh-my-posh__' theme:  
+`oh-my-posh init pwsh --config $env:PowerShellPrompts\<theme name>.json | Invoke-Expression`  
+
+<font color="red">*__This line needs to be the first line in your profile.ps1 file in order to work properly with this module.__</font>
+
+Using the __`'-omp'`__ switch will edit this for you.  
+&nbsp;  
 
 ### *Help*
 
@@ -139,7 +155,9 @@ In order to view the help documentation:
 2. Use the __`'Get-Help'`__ cmdlet:
 
    ```pwsh
+   Get-Help Set-Environment -detailed
    Get-Help Add-Settings -detailed
+   Get-Help Switch-Profile -detailed
    ```
 
 <font color=green>Note:</font> You do not need to explicitly import the '__Poser__' module in order to use it, as long as it is set up according to this guide. To Keep the help file available consistently, consider adding the import statement to your powershell profile.
