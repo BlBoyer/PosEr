@@ -160,4 +160,4 @@ In order to view the help documentation:
    Get-Help Switch-Profile -detailed
    ```
 
-<font color=green>Note:</font> You do not need to explicitly import the '__Poser__' module in order to use it, as long as it is set up according to this guide. To Keep the help file available consistently, consider adding the import statement to your powershell profile.
+<font color=green>Note:</font> You do not need to explicitly import the '__Poser__' module in order to use it, as long as it is set up according to this guide. To keep the help file available consistently, consider adding the import statement to your powershell profile.
