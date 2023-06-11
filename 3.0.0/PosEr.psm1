@@ -628,7 +628,7 @@ function Switch-Profile {
         [Parameter(
             HelpMessage="Allowed values: 'presentation', 'local', 'defaults"
         )]
-        [string] $settingName = 'defaults',
+        [string] $settingName = 'defaults'
     )
 
     if($settingName -eq 'defaults'){
