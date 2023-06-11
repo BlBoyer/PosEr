@@ -383,6 +383,7 @@ function Add-Settings {
     if($omp){
         <#execute prompt function#>
         Set-OhMyPrompt
+        return
     }
 
     $PSSettings = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json"
@@ -654,7 +655,7 @@ function Set-OhMyPrompt(){
         { $_ -ge 1 -and $_ -le $themes.Count } {
             $index = [int]$selection - 1
             $selectedOption = $themes[$index]
-            write-output "changing posh prompt: $names[$index]"
+            write-output "changing posh prompt: $(Get-ItemPropertyValue -Path $selectedOption -Name BaseName)"
             # Perform actions based on the selected option
             $myProfile = @(Get-Content -Path $Profile)
             $myProfile[0] = "oh-my-posh init pwsh --config $selectedOption | Invoke-Expression"
