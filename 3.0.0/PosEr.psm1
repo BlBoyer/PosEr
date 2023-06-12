@@ -95,6 +95,7 @@ function New-Settings {
 .SYNOPSIS
 
 Creates settings configurations for your windows terminal application.
+Alias: pps
 
 .EXAMPLE
 
@@ -102,24 +103,28 @@ pps -bgt .5 -cs "Solarized Light"
 
 .EXAMPLE
 
-pps -fs 15 -el $true -omp
+pps local -fs 15 -el $true -omp
 
 .EXAMPLE
 
 pps -bgi "C:/users/me/images/newBackground.jpg" -ty 60
 
+.EXAMPLE
+
+pps presentation -fs 15 -el $true
+
 #>
 function Add-Settings {
     param(
-        [Parameter(
-            HelpMessage="Allowed values: 'presentation', 'local', 'defaults'"
-            )]
+        <#Accepts values: 'presentation' | 'local' | 'defaults'#>
+        <#Defaults to 'defaults'#>
+        [Parameter()]
         [ValidateSet('presentation', 'local', 'defaults')]
         [string] $settingName = 'defaults',
 
     <#Alias: -col#>
     <#Column width of console on start#>
-    <#accepts number in range: 0-180#>
+    <#Accepts number in range: 0-180#>
         [Parameter()]
         [Alias('col')]
         [ValidateRange(10,180)]
@@ -127,7 +132,7 @@ function Add-Settings {
 
     <#Alias: -row#>
     <#Row height of console on start#>
-    <#accepts number in range: 10-80#>
+    <#Accepts number in range: 10-80#>
         [Parameter()]
         [Alias('row')]
         [ValidateRange(10,80)]
@@ -135,7 +140,7 @@ function Add-Settings {
 
     <#Alias: -tabp#>
     <#New tab placement#>
-    <#accepts values: 'afterCurrentTab' | 'afterLastTab'#>
+    <#Accepts values: 'afterCurrentTab' | 'afterLastTab'#>
         [Parameter()]
         [Alias('tabp')]
         [ValidateSet('afterCurrentTab','afterLastTab')]
@@ -143,7 +148,7 @@ function Add-Settings {
 
     <#Alias: -twm#>
     <#Width of tab#>
-    <#accepts values: 10-80#>
+    <#Accepts values: 10-80#>
         [Parameter()]
         [Alias('twm')]
         [ValidateSet('compact','equal','titleLength')]
@@ -151,7 +156,7 @@ function Add-Settings {
 
     <#Alias: -th#>
     <#Theme of the console#>
-    <#accepts values: 'dark' | 'light' | 'system' | 'custom'#>
+    <#Accepts values: 'dark' | 'light' | 'system' | 'custom'#>
         [Alias('th')]
         [ValidateSet('dark', 'light', 'system', 'custom')]
         [Parameter()]
@@ -159,14 +164,14 @@ function Add-Settings {
 
     <#Alias: -act#>
     <#Acrylic texture on tab#>
-    <#accepts boolean: $true | $false#>
+    <#Accepts boolean: $true | $false#>
         [Parameter()]
         [Alias('act')]
         [bool] $useAcrylicTab,
 
     <#Alias: -nta#>
     <#Attachment behavior of starting another instance of terminal#>
-    <#accepts values: 'useAnyExisting' | 'useExisting' | 'useNew'#>
+    <#Accepts values: 'useAnyExisting' | 'useExisting' | 'useNew'#>
         [Parameter()]
         [Alias('nta')]
         [ValidateSet('useAnyExisting','useExisting','useNew')]
@@ -174,14 +179,14 @@ function Add-Settings {
 
     <#Alias: -tbg#>
     <#Tab background#>
-    <#accepted values: 'accent' | 'terminalBackground' | rrggbb or rrggbbaa color#>
+    <#Accepts values: 'accent' | 'terminalBackground' | rrggbb or rrggbbaa color#>
         [Parameter()]
         [Alias('tbg')]
         [string] $tabBg,
 
     <#Alias: -tcb#>
     <#Tab close on exit behavior#>
-    <#accepted values: 'always' | 'hover' | 'never'#>
+    <#Accepts values: 'always' | 'hover' | 'never'#>
         [Parameter()]
         [Alias('tcb')]
         [ValidateSet('always','hover','never')]
@@ -189,14 +194,14 @@ function Add-Settings {
 
     <#Alias: -tsu#>
     <#Unfocused tab style#>
-    <#accepted values: 'accent' | 'terminalBackground' | rrggbb or rrggbbaa color#>
+    <#Accepts values: 'accent' | 'terminalBackground' | rrggbb or rrggbbaa color#>
         [Parameter()]
         [Alias('tsu')]
         [string] $tabStyleUnfocused,
 
     <#Alias: -wth#>
     <#Console window controls theme#>
-    <#accepted values: 'dark' | 'light' | 'system'#>
+    <#Accepts values: 'dark' | 'light' | 'system'#>
         [Parameter()]
         [Alias('wth')]
         [ValidateSet('dark','light','system')]
@@ -204,7 +209,7 @@ function Add-Settings {
 
     <#Alias: -ca#>
     <#Automatic adjustment of contrast to aid difficult to distinguish color schemes#>
-    <#accepts values: 'indexed' | 'always' | 'never'#>
+    <#Accepts values: 'indexed' | 'always' | 'never'#>
         [Parameter()]
         [Alias('ca')]
         [ValidateSet('indexed', 'always', 'never')]
@@ -212,7 +217,7 @@ function Add-Settings {
 
     <#Alias: -bgi#>
     <#Image to use for the background#>
-    <#accepts file path- should be full path including extension#>
+    <#Accepts file path- should be full path including extension#>
         [Parameter()]
         [Alias('bgi')]
         [ValidateScript({Test-Path $_})]
@@ -220,7 +225,7 @@ function Add-Settings {
 
     <#Alias: -bgt#>
     <#Transparency of the background#>
-    <#accepts float in range: 0-1#>
+    <#Accepts float in range: 0-1#>
         [Parameter()]
         [Alias('bgt')]
         [ValidateRange(0.0, 1.0)]
@@ -228,7 +233,7 @@ function Add-Settings {
 
     <#Alias: -bell#>
     <#Notification behavior of terminal#>
-    <#accepts an array including one or more the following values: 'audible', 'taskbar', 'window'#>
+    <#Accepts an array including one or more the following values: 'audible', 'taskbar', 'window'#>
     <#enter a single string value or an array: ('audible', 'taskbar', 'window')#>
         [Parameter()]
         [Alias('bell')]
@@ -237,7 +242,7 @@ function Add-Settings {
 
     <#Alias: -cs#>
     <#Color scheme for the terminal#>
-    <#accepted values: 'Campbell' | 'Campbell Powershell' | 'One Half Dark' | 'One Half Light' |
+    <#Accepts values: 'Campbell' | 'Campbell Powershell' | 'One Half Dark' | 'One Half Light' |
         'Solarized Dark' | 'Solarized Light' | 'Tango Dark' | 'Tango Light' | 'Vintage'#>
         [Parameter()]
         [Alias('cs')]
@@ -247,7 +252,7 @@ function Add-Settings {
 
     <#Alias: -ctb#>
     <#Behavior upon exiting script#>
-    <#accepted values: 'never' | 'automatic' | 'always' | 'graceful'#>
+    <#Accepts values: 'never' | 'automatic' | 'always' | 'graceful'#>
         [Parameter()]
         [Alias('ctb')]
         [ValidateSet('never', 'automatic', 'always', 'graceful')]
@@ -255,7 +260,7 @@ function Add-Settings {
 
     <#Alias: -ch#>
     <#Cursor height#>
-    <#accepts number in range: 0-100#>
+    <#Accepts number in range: 0-100#>
         [Parameter()]
         [Alias('ch')]
         [ValidateRange(0,100)]
@@ -264,7 +269,7 @@ function Add-Settings {
 
     <#Alias: -cu#>
     <#Cursor shape#>
-    <#accepted values: 'bar' | 'doubleUnderscore' | 'emptyBox' | 'filledBox' | 'underscore' | 'vintage'#>
+    <#Accepts values: 'bar' | 'doubleUnderscore' | 'emptyBox' | 'filledBox' | 'underscore' | 'vintage'#>
         [Parameter()]
         [Alias('cu')]
         [ValidateSet('bar', 'doubleUnderscore', 'emptyBox', 'filledBox', 'underscore', 'vintage')]
@@ -273,7 +278,7 @@ function Add-Settings {
 
     <#Alias: -su#>
     <#Run powershell as admin#>
-    <#accepts boolean: $true | $false#>
+    <#Accepts boolean: $true | $false#>
         [Parameter()]
         [Alias('su')]
         [bool]
@@ -281,7 +286,7 @@ function Add-Settings {
 
     <#Alias: -ff#>
     <#Set the font face#>
-    <#accepts a string value of any font installed on your machine#>
+    <#Accepts a string value of any font installed on your machine#>
     <#It is recommended to use NerdFonts#>
         [Parameter()]
         [Alias('ff')]
@@ -289,7 +294,7 @@ function Add-Settings {
         
     <#Alias: -fs#>
     <#Font size#>
-    <#accepts number in range: 8-20#>
+    <#Accepts number in range: 8-20#>
         [Parameter()]
         [Alias('fs')]
         [ValidateRange(8,20)]
@@ -297,7 +302,7 @@ function Add-Settings {
 
     <#Alias: -fw#>
     <#Font weight#>
-    <#accepted values: 'Thin' | 'Extra-Light' | 'Light' | 'Semi-Light' | 'Normal' | 'Medium' | 'Semi-Bold' | 
+    <#Accepts values: 'Thin' | 'Extra-Light' | 'Light' | 'Semi-Light' | 'Normal' | 'Medium' | 'Semi-Bold' | 
         'Bold' | 'Extra-Bold' | 'Black' | 'Extra-Black' | 'Custom'#>
         [Parameter()]
         [Alias('fw')]
@@ -307,7 +312,7 @@ function Add-Settings {
 
     <#Alias: -istyle#>
     <#Intense font style#>
-    <#accepted values: 'all' | 'bright' | 'bold' | 'none'#>
+    <#Accepts values: 'all' | 'bright' | 'bold' | 'none'#>
         [Parameter()]
         [Alias('istyle')]
         [ValidateSet('all','bright','bold','none')]
@@ -316,7 +321,7 @@ function Add-Settings {
 
     <#Alias: -ty#>
     <#Transparency of the window#>
-    <#accepts number in range: 1-100#>
+    <#Accepts number in range: 1-100#>
         [Parameter()]
         [Alias('ty')]
         [ValidateRange(0,100)]
@@ -324,7 +329,7 @@ function Add-Settings {
 
     <#Alias: -pd#>
     <#Padding of the console text#>
-    <#accepts number in range: 0-30#>
+    <#Accepts number in range: 0-30#>
         [Parameter()]
         [Alias('pd')]
         [ValidateRange(0,30)]
@@ -333,7 +338,7 @@ function Add-Settings {
 
     <#Alias: -scroll#>
     <#Scrollbar visibility#>
-    <#accepted values: 'always' | 'hidden' | 'visible'#>
+    <#Accepts values: 'always' | 'hidden' | 'visible'#>
         [Parameter()]
         [Alias('scroll')]
         [ValidateSet('always','hidden','visible')]
@@ -342,7 +347,7 @@ function Add-Settings {
 
     <#Alias: -supt#>
     <#Ignore application requests to change the title of the window#>
-    <#accepts boolean: $true | $false#>
+    <#Accepts boolean: $true | $false#>
         [Parameter()]
         [Alias('supt')]
         [bool]
@@ -350,14 +355,14 @@ function Add-Settings {
 
     <#Alias: -alta#>
     <#Use diffferent key binding for ctrl+alt key combo for international and other non-standard keyboard settings#>
-    <#accepts boolean: $true | $false#>
+    <#Accepts boolean: $true | $false#>
         [Parameter()]
         [Alias('alta')]
         [bool] $altGrAliasing, 
 
     <#Alias: -snap#>
     <#Snap console to input line when writing to the cli#>
-    <#accepts boolean: $true | $false#>
+    <#Accepts boolean: $true | $false#>
         [Parameter()]
         [Alias('snap')]
         [bool]
@@ -374,7 +379,7 @@ function Add-Settings {
 
     <#Alias: -acbg#>
     <#Use acrylic texture on background#>
-    <#accepts boolean: $true | $false#>
+    <#Accepts boolean: $true | $false#>
         [Parameter()]
         [Alias('acbg')]
         [bool]
@@ -382,7 +387,7 @@ function Add-Settings {
 
     <#Alias: -ae#>
     <#Use different rendering engine for text#>
-    <#accepts boolean: $true | $false#>
+    <#Accepts boolean: $true | $false#>
         [Parameter()]
         [Alias('ae')]
         [bool]
@@ -647,6 +652,7 @@ function Add-Settings {
 .SYNOPSIS
 
 Changes the settings profile of your windows terminal application.
+Alias: chp
 
 .EXAMPLE
 
