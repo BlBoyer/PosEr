@@ -1,4 +1,7 @@
+
 # Getting Started
+
+[[TOC]]
 
 ### *Set Up the Module*
 
@@ -139,7 +142,7 @@ In your profile.ps1 you should have the following line for loading your '__oh-my
 
 <font color="red">*__This line needs to be the first line in your profile.ps1 file in order to work properly with this module.__</font>
 
-Using the __`'-omp'`__ switch will edit this for you.  
+Use the __`'-omp'`__ switch to change themes.  
 &nbsp;  
 
 ### *Help*
