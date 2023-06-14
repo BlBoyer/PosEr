@@ -7,7 +7,9 @@ This command sets up your environment variables to work with PosEr.
 function Set-Environment {
     param (
         <#String path to the DIRECTORY containing your PowerShell profile.ps1#>
-        <#default is $env:USERPROFILE\Documents\WindowsPowerShell#>
+        <#For PowerShell only, $env:USERPROFILE\Documents\PowerShell#>
+        <#For WindowsPowerShell only, use $env:USERPROFILE\Documents\WindowsPowerShell#>
+        <#Or, add your own custom profile directory here!#>
         [Parameter(
             Mandatory = $true
         )]
@@ -15,7 +17,7 @@ function Set-Environment {
     )
 
     if(!$PSBoundParameters.ContainsKey('PowerShellProfilePath')){
-        $PowerShellProfilePath = '$env:USERPROFILE\Documents\WindowsPowerShell'
+        $PowerShellProfilePath = '$env:USERPROFILE\Documents\PowerShell'
     }
     $pkgId = Get-AppPackage Microsoft.WindowsTerminal | Select-Object -ExpandProperty PublisherId
 
@@ -505,10 +507,10 @@ function Add-Settings {
             -Destination $PRDefaultParameterValues."Add-Settings:backgroundImage"
         }
             <#settings#>
-        if($initCols -ne $SettingsObject.initialCols -and $PSBoundParameters.ContainsKey('initialCols')){
+        if($initCols -ne $SettingsObject.initialCols -and $PSBoundParameters.ContainsKey('initCols')){
             $SettingsObject.initialCols = $initialCols
         }
-        if($initRows -ne $SettingsObject.initialRows -and $PSBoundParameters.ContainsKey('initialRows')){
+        if($initRows -ne $SettingsObject.initialRows -and $PSBoundParameters.ContainsKey('initRows')){
             $SettingsObject.initialRows = $initialRows
         }
         if($newTabPlacement -ne $SettingsObject.newTabPosition -and $PSBoundParameters.ContainsKey('newTabPlacement')){
