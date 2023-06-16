@@ -14,7 +14,6 @@ function Set-Environment {
         [string] $PowerShellProfilePath
     )
 
-    
     if(!($PSBoundParameters.ContainsKey('PowerShellProfilePath'))){
         $host.UI.RawUI.ForegroundColor = 'Green'
         $PowerShellProfilePath = Read-Host "Supply the path to your profile.ps1 file"
@@ -692,16 +691,20 @@ function Switch-Profile {
         [string] $settingName = 'defaults'
     )
 
+    
     if($settingName -eq 'defaults'){
         .$PSSCriptRoot/Set-Defaults
         return pps defaults -r -nc
     }
+    
     Copy-Item -Path "$env:PowerShellHome\Settings\$settingName.json" `
-     -Destination "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PackagePublisherId\LocalState\settings.json" `
-     -ErrorAction SilentlyContinue -ErrorVariable noCopy
+    -Destination "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PackagePublisherId\LocalState\settings.json" `
+    -ErrorAction SilentlyContinue -ErrorVariable noCopy
     if($noCopy){
         Write-Host `n "No saved profile settings for this option found." `n -ForegroundColor Magenta
+        return
     }
+    Set-OhMyPrompt "$env:PowerShellHome\Settings\$settingName.json" -chp
 } 
 
 function Set-OhMyPrompt([string]$settingsFilePath, [switch]$chp){
@@ -717,7 +720,9 @@ function Set-OhMyPrompt([string]$settingsFilePath, [switch]$chp){
         $names = $themes | Get-ItemPropertyValue -Name BaseName
         Write-Output $names "`n"
         $selection = Read-Host "Please select an option (1-$($themes.Count))"
-        switch ($selection) {
+        # parse number
+        Write-Host $themes[$selection]
+        switch ([int]$selection) {
             { $_ -ge 1 -and $_ -le $themes.Count } {
                 $index = [int]$selection - 1
                 $selectedOption = $themes[$index]
@@ -742,6 +747,7 @@ function Set-OhMyPrompt([string]$settingsFilePath, [switch]$chp){
         if ($null -ne $PSSettings.promptSetting){
             $myProfile = @(Get-Content -Path $PowerShellProfile)
             $myProfile[0] = $PSSettings.promptSetting
+            $myProfile | Set-Content -Path $PowerShellProfile -Force
             . $env:PowerShellHome/profile.ps1
         }
     }
