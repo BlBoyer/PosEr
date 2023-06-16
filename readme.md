@@ -28,7 +28,7 @@ The module contains four functions for your use:
 * Add-Settings
 * Switch-Profile
 
-Use the __`'Set-Environment'`__ command and supply the '__PowerShellProfilePath__' parameter with the folder you have your PowerShell profile script in.  
+Use the __`'Set-Environment'`__ command and supply the '__PowerShellProfilePath__' parameter with the folder you have your PowerShell profile script in. If the profile script is pointing to another, do not use the path to it, use the path to the '__profile.ps1__' you're pointing at.  
 The module will then create environment variables and folders to use.  
 Use the __`'New-Settings'`__ command to run the initial setup for the terminal settings. If this is not done, it will automatically run when attempting to use the module the first time.  
 &nbsp;

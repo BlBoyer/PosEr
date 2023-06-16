@@ -6,37 +6,48 @@ This command sets up your environment variables to work with PosEr.
 #>
 function Set-Environment {
     param (
-        <#String path to the DIRECTORY containing your PowerShell profile.ps1#>
+        <#Path to the DIRECTORY containing your PowerShell profile.ps1, do not use quotes!#>
         <#For PowerShell only, $env:USERPROFILE\Documents\PowerShell#>
         <#For WindowsPowerShell only, use $env:USERPROFILE\Documents\WindowsPowerShell#>
-        <#Or, add your own custom profile directory here!#>
-        [Parameter(
-            Mandatory = $true
-        )]
+        <#Or, add your own custom profile directory here! You need to do this if your profile is pointing at another one.#>
+        [Parameter()]
         [string] $PowerShellProfilePath
     )
 
-    if(!$PSBoundParameters.ContainsKey('PowerShellProfilePath')){
-        $PowerShellProfilePath = '$env:USERPROFILE\Documents\PowerShell'
+    
+    if(!($PSBoundParameters.ContainsKey('PowerShellProfilePath'))){
+        $host.UI.RawUI.ForegroundColor = 'Green'
+        $PowerShellProfilePath = Read-Host "Supply the path to your profile.ps1 file"
     }
+    
+    if (!(Test-Path $PowerShellProfilePath)){
+        Write-Host "Path invalid. Please try again."
+        Write-Host "Hint: Do NOT use quotes."
+        return
+    }
+
+    Write-Host "Creating Environment Settings" -ForegroundColor Cyan
+    
     $pkgId = Get-AppPackage Microsoft.WindowsTerminal | Select-Object -ExpandProperty PublisherId
 
-    [System.Environment]::SetEnvironmentVariable('PowerShellHome','$PowerShellProfilePath',[System.EnvironmentVariableTarget]::User)
-    [System.Environment]::SetEnvironmentVariable('PowerShellScripts','$PowerShellProfilePath\Scripts',[System.EnvironmentVariableTarget]::User)
-    [System.Environment]::SetEnvironmentVariable('PowerShellPrompts','$PowerShellProfilePath\Prompts',[System.EnvironmentVariableTarget]::User)
-    [System.Environment]::SetEnvironmentVariable('PowerShellVersion',$pkgId,[System.EnvironmentVariableTarget]::User)
+    [System.Environment]::SetEnvironmentVariable('PowerShellHome',$PowerShellProfilePath,[System.EnvironmentVariableTarget]::User)
+    [System.Environment]::SetEnvironmentVariable('PowerShellPrompts',"$PowerShellProfilePath\Prompts",[System.EnvironmentVariableTarget]::User)
+    [System.Environment]::SetEnvironmentVariable('PackagePublisherId',$pkgId,[System.EnvironmentVariableTarget]::User)
+    $env:PowerShellHome = $PowerShellProfilePath
+    $env:PowerShellPrompts = "$PowerShellProfilePath\Prompts"
+    $env:PackagePublisherId = $pkgId
     <#Directories#>
-    mkdir -p $env:PowerShellScripts
-    mkdir -p $env:PowerShellPrompts
-    mkdir -p $env:PowerShellHome'\Images'
-    mkdir -p $env:PowerShellHome'\Settings'
-
-    Copy-Item -Path "$PSScriptRoot\img\background.png" -Destination "$env:PowerShellHome\Images\background.jpg"
+    mkdir -p $PowerShellProfilePath'\Prompts'
+    mkdir -p $PowerShellProfilePath'\Images'
+    mkdir -p $PowerShellProfilePath'\Settings'
+<#may have an issue with this when running manually#>
+    Copy-Item -Path "$PSScriptRoot\img\background.jpg" -Destination "$PowerShellProfilePath\Images\background.jpg"
 }
 
 function New-Settings {
     Write-Host "Adding New Settings" -ForegroundColor Cyan
-    $PSSettings = Get-Content -Raw "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json" | ConvertFrom-Json
+    .$PSScriptRoot/Set-Defaults
+    $PSSettings = Get-Content -Raw "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PackagePublisherId\LocalState\settings.json" | ConvertFrom-Json
     <#mod settings to all values#>
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name defaultProfile -Value "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name initialCols -Value $PRDefaultParameterValues."Add-Settings:initCols" -Force
@@ -46,6 +57,7 @@ function New-Settings {
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name theme -Value $PRDefaultParameterValues."Add-Settings:theme" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name useAcrylicInTabRow -Value $PRDefaultParameterValues."Add-Settings:useAcrylicTab" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name windowingBehavior -Value $PRDefaultParameterValues."Add-Settings:newTabAttach" -Force
+    Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name promptSetting -Value ""
     $PSSettings.themes[$PSSettings.themes.Count-1] = [PSCustomObject]@{
         <#we may put name key here,just to make sure it is custom, or if it doesn't work without it#>
             name = $PRDefaultParameterValues."Add-Settings:theme"
@@ -88,7 +100,7 @@ function New-Settings {
     $PSSettings | ConvertTo-Json -Depth 100 | Set-Content $outputFile
     $outputFile = "$env:PowerShellHome\Settings\presentation.json" 
     $PSSettings | ConvertTo-Json -Depth 100 | Set-Content $outputFile
-    $outputFile = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json"
+    $outputFile = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PackagePublisherId\LocalState\settings.json"
     $PSSettings | ConvertTo-Json -Depth 100 | Set-Content $outputFile
     $outputFile = $null
 }
@@ -411,6 +423,12 @@ function Add-Settings {
         [switch] $nc
     )
 
+    if(![System.Environment]::GetEnvironmentVariables('User').Contains('PowerShellHome')){
+        Write-Host "No Environment Present" -ForegroundColor Magenta
+        Set-Environment
+        return
+    }
+
     <#if files do not exist, run setup#>
     if (!(Test-Path -Path "$env:PowerShellHome\Settings\local.json") -or !(Test-Path -Path "$env:PowerShellHome\Settings\presentation.json")){
         Write-Host "No Settings Present" -ForegroundColor Magenta
@@ -418,17 +436,13 @@ function Add-Settings {
         return
     }
 
-    if($null -eq $env:PowerShellHome){
-        Set-Environment
-    }
-
     if($omp){
         <#execute prompt function#>
-        Set-OhMyPrompt
+        Set-OhMyPrompt("$env:PowerShellHome\Settings\$settingName.json")
         return
     }
 
-    $PSSettings = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json"
+    $PSSettings = "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PackagePublisherId\LocalState\settings.json"
     <#get settingName object, if null, get current $PSSettings object#>
     if ($settingName -ine 'defaults'){
         $SettingsObject = Get-Content -Raw "$env:PowerShellHome\Settings\$settingName.json" -ErrorAction SilentlyContinue | ConvertFrom-Json
@@ -508,10 +522,10 @@ function Add-Settings {
         }
             <#settings#>
         if($initCols -ne $SettingsObject.initialCols -and $PSBoundParameters.ContainsKey('initCols')){
-            $SettingsObject.initialCols = $initialCols
+            $SettingsObject.initialCols = $initCols
         }
         if($initRows -ne $SettingsObject.initialRows -and $PSBoundParameters.ContainsKey('initRows')){
-            $SettingsObject.initialRows = $initialRows
+            $SettingsObject.initialRows = $initRows
         }
         if($newTabPlacement -ne $SettingsObject.newTabPosition -and $PSBoundParameters.ContainsKey('newTabPlacement')){
             $SettingsObject.newTabPosition = $newTabPosition
@@ -683,34 +697,52 @@ function Switch-Profile {
         return pps defaults -r -nc
     }
     Copy-Item -Path "$env:PowerShellHome\Settings\$settingName.json" `
-     -Destination "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PowerShellVersion\LocalState\settings.json" `
+     -Destination "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PackagePublisherId\LocalState\settings.json" `
      -ErrorAction SilentlyContinue -ErrorVariable noCopy
     if($noCopy){
         Write-Host `n "No saved profile settings for this option found." `n -ForegroundColor Magenta
     }
 } 
 
-function Set-OhMyPrompt(){
-    <#get filenames for themes#>
-    $themes = Get-Item -Path "$env:PowershellPrompts/*" -Include *.json
-    $names = $themes | Get-ItemPropertyValue -Name BaseName
-    Write-Output $names "`n"
-    $selection = Read-Host "Please select an option (1-$($themes.Count))"
-    
-    switch ($selection) {
-        { $_ -ge 1 -and $_ -le $themes.Count } {
-            $index = [int]$selection - 1
-            $selectedOption = $themes[$index]
-            write-output "changing posh prompt: $(Get-ItemPropertyValue -Path $selectedOption -Name BaseName)"
-            # Perform actions based on the selected option
-            $myProfile = @(Get-Content -Path $Profile)
-            $myProfile[0] = "oh-my-posh init pwsh --config $selectedOption | Invoke-Expression"
-            $myProfile | Set-Content -Path $Profile -Force
-            . $Profile
-            <#$ompTheme = $null#>
+function Set-OhMyPrompt([string]$settingsFilePath, [switch]$chp){
+    $PowerShellProfile = "$env:PowerShellHome\profile.ps1"
+    #test profile path
+    if (!(Test-Path -Path $PowerShellProfile)){
+        Write-Host "Profile doesn't exist. Create a profile.ps1 file in $env:PowerShellHome and install Oh-My-Posh to use this functionality."
+        return
+    }
+    if (!$chp){
+        <#get filenames for themes#>
+        $themes = Get-Item -Path "$env:PowershellPrompts/*" -Include *.json
+        $names = $themes | Get-ItemPropertyValue -Name BaseName
+        Write-Output $names "`n"
+        $selection = Read-Host "Please select an option (1-$($themes.Count))"
+        switch ($selection) {
+            { $_ -ge 1 -and $_ -le $themes.Count } {
+                $index = [int]$selection - 1
+                $selectedOption = $themes[$index]
+                write-output "changing posh prompt: $(Get-ItemPropertyValue -Path $selectedOption -Name BaseName)"
+                # Perform actions based on the selected option
+                $myProfile = @(Get-Content -Path $PowerShellProfile)
+                $myProfile[0] = "oh-my-posh init pwsh --config $selectedOption | Invoke-Expression"
+                $myProfile | Set-Content -Path $PowerShellProfile -Force
+                . $env:PowerShellHome/profile.ps1
+                # Save setting to file
+                $PSSettings = Get-Content -Raw $settingsFilePath | ConvertFrom-Json
+                $PSSettings.promptSetting = $myProfile[0]
+                $PSSettings | ConvertTo-Json -Depth 100 | Set-Content $settingsFilePath
+            }
+            default {
+                Write-Host "Invalid selection. Please try again."
+                return
+            }
         }
-        default {
-            Write-Host "Invalid selection. Please try again."
+    } else {
+        $PSSettings = Get-Content -Raw $settingsFilePath | ConvertFrom-Json
+        if ($null -ne $PSSettings.promptSetting){
+            $myProfile = @(Get-Content -Path $PowerShellProfile)
+            $myProfile[0] = $PSSettings.promptSetting
+            . $env:PowerShellHome/profile.ps1
         }
     }
 }

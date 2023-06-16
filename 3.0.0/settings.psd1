@@ -1,6 +1,6 @@
 @{
-	'Add-Settings:initCols'=90
-	'Add-Settings:initRows'=30
+	'Add-Settings:initCols'=70
+	'Add-Settings:initRows'=20
 	'Add-Settings:newTabPlacement'='afterLastTab'
 	'Add-Settings:tabWidthMode'='titleLength'
 	'Add-Settings:theme'='custom'
