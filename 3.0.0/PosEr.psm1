@@ -39,7 +39,8 @@ function Set-Environment {
     mkdir -p $PowerShellProfilePath'\Prompts'
     mkdir -p $PowerShellProfilePath'\Images'
     mkdir -p $PowerShellProfilePath'\Settings'
-<#may have an issue with this when running manually#>
+
+    Copy-Item -Path "$PSScriptRoot\settings.psd1" -Destination "$PowerShellProfilePath\Settings\settings.psd1"
     Copy-Item -Path "$PSScriptRoot\img\background.jpg" -Destination "$PowerShellProfilePath\Images\background.jpg"
     <#oh-my-posh themes#>
     Copy-Item -Path "$env:POSH_THEMES_PATH\*"  -Destination "$PowerShellProfilePath\Prompts" -ErrorAction SilentlyContinue -ErrorVariable $noPrompts
@@ -622,7 +623,7 @@ function Add-Settings {
         }
         if ($continue -ieq "y"){
             $outputFile = $PSSettings
-            $defaultParams = Get-Content -Path $PSScriptRoot\settings.psd1 
+            $defaultParams = Get-Content -Path "$env:PowerShellHome\Settings\settings.psd1" 
             if($PSBoundParameters.ContainsKey('initCols')){$defaultParams[1] = "`t'Add-Settings:initCols'='$initCols'"}
             if($PSBoundParameters.ContainsKey('initRows')){$defaultParams[2] = "`t'Add-Settings:initRows'='$initRows'"}
             if($PSBoundParameters.ContainsKey('newTabPlacement')){$defaultParams[3] = "`t'Add-Settings:newTabPlacement'='$newTabPlacement'"}
@@ -653,7 +654,7 @@ function Add-Settings {
             if($PSBoundParameters.ContainsKey('inputSnap')){$defaultParams[28] = "`t'Add-Settings:inputSnap'='$inputSnap'"}
             if($PSBoundParameters.ContainsKey('acrylicBg')){$defaultParams[29] = "`t'Add-Settings:acrylicBg'='$acrylicBg'"}
             if($PSBoundParameters.ContainsKey('atlasEngine')){$defaultParams[30] = "`t'Add-Settings:atlasEngine'='$atlasEngine'"}
-            $defaultParams | Set-Content -Path $PSScriptRoot\settings.psd1 -Force
+            $defaultParams | Set-Content -Path "$env:PowerShellHome\Settings\settings.psd1" -Force
         } else {
             return
         }
@@ -662,6 +663,7 @@ function Add-Settings {
     }
 
     <# necessary Depth level 3, this is subject to change if the powershell settings file obtains further nested values #>
+    Write-Host "Updating $settingName settings..." -ForegroundColor Cyan
     $SettingsObject | ConvertTo-Json -Depth 100 | Set-Content $outputFile
     
     if($settingName -ine 'defaults'){
