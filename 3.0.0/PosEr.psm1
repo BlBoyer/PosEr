@@ -725,8 +725,11 @@ function Set-OhMyPrompt([string]$settingsFilePath, [switch]$chp){
     if (!$chp){
         <#get filenames for themes#>
         $themes = Get-Item -Path "$env:PowershellPrompts/*" -Include *.json
-        $names = $themes | Get-ItemPropertyValue -Name BaseName
-        Write-Output $names "`n"
+        $themeNames = $themes | Get-ItemPropertyValue -Name BaseName
+        #Write-Output $names "`n"
+        for ($count = 0; $count -lt  $themeNames.Count; $count++){
+            Write-Host $($count+1) $themeNames[$count] "`n"
+        }
         $selection = Read-Host "Please select an option (1-$($themes.Count))"
         # parse number
         switch ([int]$selection) {
