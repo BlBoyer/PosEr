@@ -54,7 +54,9 @@ function New-Settings {
     .$PSScriptRoot/Set-Defaults
     $PSSettings = Get-Content -Raw "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PackagePublisherId\LocalState\settings.json" | ConvertFrom-Json
     <#mod settings to all values#>
-    Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name defaultProfile -Value "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}" -Force
+    # default terminal host: powershell or windows powershell
+    Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name defaultProfile -Value "{574e775e-4f2a-5b96-ac1e-a2962a402336}" -Force
+    # Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name defaultProfile -Value "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name initialCols -Value $PRDefaultParameterValues."Add-Settings:initCols" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name initialRows -Value $PRDefaultParameterValues."Add-Settings:initRows" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name newTabPosition -Value $PRDefaultParameterValues."Add-Settings:newTabPlacement" -Force
