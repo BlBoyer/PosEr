@@ -41,6 +41,11 @@ function Set-Environment {
     mkdir -p $PowerShellProfilePath'\Settings'
 <#may have an issue with this when running manually#>
     Copy-Item -Path "$PSScriptRoot\img\background.jpg" -Destination "$PowerShellProfilePath\Images\background.jpg"
+    <#oh-my-posh themes#>
+    Copy-Item -Path "$env:POSH_THEMES_PATH\*"  -Destination "$PowerShellProfilePath\Prompts" -ErrorAction SilentlyContinue -ErrorVariable $noPrompts
+    if ($noPrompts){
+        Write-Host "No themes were found for 'oh-my-posh'" -ForegroundColor Magenta
+    }
 }
 
 function New-Settings {
@@ -56,7 +61,7 @@ function New-Settings {
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name theme -Value $PRDefaultParameterValues."Add-Settings:theme" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name useAcrylicInTabRow -Value $PRDefaultParameterValues."Add-Settings:useAcrylicTab" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name windowingBehavior -Value $PRDefaultParameterValues."Add-Settings:newTabAttach" -Force
-    Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name promptSetting -Value ""
+    Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name promptSetting -Value "oh-my-posh init pwsh --config $env:PowerShellPrompts\atomic.omp.json | Invoke-Expression" -Force
     $PSSettings.themes[$PSSettings.themes.Count-1] = [PSCustomObject]@{
         <#we may put name key here,just to make sure it is custom, or if it doesn't work without it#>
             name = $PRDefaultParameterValues."Add-Settings:theme"
@@ -407,6 +412,7 @@ function Add-Settings {
         $atlasEngine,
 
     <#Oh-My-Posh theme setting#>
+    <#Only used for local or presentation settings#>
     <#Switches do not take arguments#>
         [Parameter()]
         [switch] $omp,
@@ -721,7 +727,6 @@ function Set-OhMyPrompt([string]$settingsFilePath, [switch]$chp){
         Write-Output $names "`n"
         $selection = Read-Host "Please select an option (1-$($themes.Count))"
         # parse number
-        Write-Host $themes[$selection]
         switch ([int]$selection) {
             { $_ -ge 1 -and $_ -le $themes.Count } {
                 $index = [int]$selection - 1
