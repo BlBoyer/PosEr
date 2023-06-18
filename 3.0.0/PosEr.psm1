@@ -524,7 +524,7 @@ function Add-Settings {
             if (Test-Path "$env:PowerShellHome\Images\$settingName.jpg"){
                 $date = Get-Date -format 'MM-dd-yyyy_hhmmss'
                 Copy-Item -Path "$env:PowerShellHome\Images\$settingName.jpg" `
-                -Destination "$env:PowerShellHome\Images\$date.jpg"
+                -Destination "$env:PowerShellHome\Images\$date-$settingName.jpg"
             }
 
             Copy-Item -Path $backgroundImage `
