@@ -520,13 +520,18 @@ function Add-Settings {
         <#update the settings object#>
         .$PSScriptRoot/Set-Defaults
         if($backgroundImage -ne $settingsObject.profiles.defaults.backgroundImage -and $PSBoundParameters.ContainsKey('backgroundImage')){
-            $SettingsObject.profiles.defaults.backgroundImage = $backgroundImage
-            <#copy both and put new img in folder#>
-            $date = Get-Date -format 'MM-dd-yyyy_hhmmss'
-            Copy-Item -Path $PRDefaultParameterValues."Add-Settings:backgroundImage" `
-            -Destination "$env:PowerShellHome\Images\$date.jpg"
+            <#copy old image, save to archive, copy new bg to setting#>
+            if (Test-Path "$env:PowerShellHome\Images\$settingName.jpg"){
+                $date = Get-Date -format 'MM-dd-yyyy_hhmmss'
+                Copy-Item -Path "$env:PowerShellHome\Images\$settingName.jpg" `
+                -Destination "$env:PowerShellHome\Images\$date.jpg"
+            }
+
             Copy-Item -Path $backgroundImage `
-            -Destination $PRDefaultParameterValues."Add-Settings:backgroundImage"
+            -Destination "$env:PowerShellHome\Images\$settingName.jpg"
+
+            $SettingsObject.profiles.defaults.backgroundImage = "$env:PowerShellHome\Images\$settingName.jpg"
+
         }
             <#settings#>
         if($initCols -ne $SettingsObject.initialCols -and $PSBoundParameters.ContainsKey('initCols')){
