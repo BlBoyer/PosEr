@@ -5,21 +5,25 @@
 
 ### *Set Up the Module*
 
-<mark>&nbsp;*You must have [__windows terminal__](https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701) to use this module.&nbsp;</mark>
+<mark>&nbsp;*You must have [__windows terminal__](https://github.com/microsoft/terminal) to use this module.&nbsp;</mark>
 
 1. Once you have terminal installed, open a new instance of '__Windows Powershell__', or use the keyboard shortcut '__Ctrl + Shift + 1__'.
 
 2. Copy the module into your modules directory. You can find the directories availiable using the command:
 
-```pwsh
-$env:PSModulePath
-```
+   ```pwsh
+   $env:PSModulePath
+   ```
 
-1. Then use the following command to import the module,
+   It is recommended you put the module in "__C:\Program Files\WindowsPowerShell\Modules__" in order to use it with all powershell hosts.
 
-```pwsh
-Import-Module PosEr
-```
+3. Then use the following command to import the module,
+
+   ```pwsh
+   Import-Module PosEr
+   ```
+
+   <font color="green">*It is recommended to add this line to your '__profile.ps1__'</font>
 
 The module contains four functions for your use:
 
@@ -28,7 +32,8 @@ The module contains four functions for your use:
 * Add-Settings
 * Switch-Profile
 
-Use the __`'Set-Environment'`__ command and supply the '__PowerShellProfilePath__' parameter with the folder you have your PowerShell profile script in.  
+Use the __`'Set-Environment'`__ command and supply the '__PowerShellProfilePath__' parameter with the path to the folder you have your PowerShell profile script in. If the profile script is pointing to another, do not use the path to it; instead, use the path to the '__profile.ps1__' you're pointing at.  
+
 The module will then create environment variables and folders to use.  
 Use the __`'New-Settings'`__ command to run the initial setup for the terminal settings. If this is not done, it will automatically run when attempting to use the module the first time.  
 &nbsp;
@@ -54,7 +59,7 @@ Add-Settings defaults [-option] [value]
 <mark>Hint:</mark>
 <font color=Magenta>Using the __Add-Settings__ or __Switch-Profile__ commands without a setting name will default to 'defaults'.</font>  
 
-The options are:
+The options are (see the [help](#help) for more detailed information):
 
 * <font color="cyan">initCols</font>
 * <font color="cyan">initRows</font>
@@ -89,9 +94,7 @@ The options are:
 * <font color="cyan">acrylicBg</font>
 * <font color="cyan">atlasEngine</font>
 
-To save settings, there are two profiles available that can be created with the __`'Add-Settings'`__ command- `'local'` and `'presentation'`. Supply values for as many parameters as you desire per call.
-
-<font color=magenta>__*Don't supply values for options you wish to use their defaults for.__</font>  
+To save settings, there are two profiles available that can be created with the __`'Add-Settings'`__ command- `'local'` and `'presentation'`. Supply values for as many parameters as you desire per call.  
 &nbsp;
 
 ### *Run the Switch-Profile Command*
@@ -132,24 +135,23 @@ pps presentation -cs 'Vintage'
 * <font color="orange">omp</font>
 
 *Use __`'pps -r'`__ with the '__local__' or '__presentation__' setting to reset the values to defaults.  
-*Use __`'pps -nc'`__ with the '__defaults__' setting to skip confirmation of changing the module's default values.
-*Use __`'pps -omp'`__ to set the oh-my-posh prompt theme.
+*Use __`'pps -nc'`__ with the '__defaults__' setting to skip confirmation of changing the module's default values.  
+*Use __`'pps <setting name> -omp'`__ to set the oh-my-posh prompt theme.  
+<font color="magenta">The -omp switch only affects the '__local__' and '__presentation__' settings.</font>
 
 #### Setting the prompt theme
 
-In your profile.ps1 you should have the following line for loading your '__oh-my-posh__' theme:  
+In your '__profile.ps1__' you should have the following as the first line, for loading your '__oh-my-posh__' theme:  
 `oh-my-posh init pwsh --config $env:PowerShellPrompts\<theme name>.json | Invoke-Expression`  
 
-<font color="red">*__This line needs to be the first line in your profile.ps1 file in order to work properly with this module.__</font>
-
-Use the __`'-omp'`__ switch to change themes.  
+<font color="red">*__This must be the first line in your profile.ps1 file in order to work properly with this module.__</font>  
 &nbsp;  
 
 ### *Help*
 
 In order to view the help documentation:
 
-1. Explicitly import the '__Poser__' module
+1. If the import statement is not in your '__profile.ps1__', explicitly import the '__Poser__' module
 
    ```pwsh
    Import-Module Poser
