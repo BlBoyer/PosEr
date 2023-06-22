@@ -166,3 +166,24 @@ In order to view the help documentation:
    ```
 
 <font color=green>Note:</font> You do not need to explicitly import the '__Poser__' module in order to use it, as long as it is set up according to this guide. To keep the help file available consistently, consider adding the import statement to your powershell profile.
+
+## Uninstall PosEr
+
+1. Find the install path of PosEr:
+
+   ```pwsh
+   Get-Module PosEr -ListAvailable
+   ```
+
+1. Use the provided directory path and copy it int your file browser, like this:
+   "__C:\Program Files\WindowsPowerShell\Modules\PosEr__"
+2. Start an elevated powershell instance (admin priviledges).
+3. Run the '__Uninstall-Poser__' script:
+
+   ```pwsh
+   . "C:\Users\boyer\Projects\Applications\Desktop\PosEr\3.0.0\Uninstall-Poser.ps1"
+   ```
+
+4. Open the '__Uninstall-Poser__' script and copy its contents to the clipboard.
+5. Paste the contents of the '__Uninstall-Poser__' script into the console window.
+6. Hit '__enter__'.
