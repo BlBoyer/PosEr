@@ -55,8 +55,7 @@ function New-Settings {
     $PSSettings = Get-Content -Raw "$env:USERPROFILE\AppData\Local\Packages\Microsoft.WindowsTerminal_$env:PackagePublisherId\LocalState\settings.json" | ConvertFrom-Json
     <#mod settings to all values#>
     # default terminal host: powershell or windows powershell
-    Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name defaultProfile -Value "{574e775e-4f2a-5b96-ac1e-a2962a402336}" -Force
-    # Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name defaultProfile -Value "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}" -Force
+    Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name defaultProfile -Value "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name initialCols -Value $PRDefaultParameterValues."Add-Settings:initCols" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name initialRows -Value $PRDefaultParameterValues."Add-Settings:initRows" -Force
     Add-Member -InputObject $PSSettings -MemberType NoteProperty -Name newTabPosition -Value $PRDefaultParameterValues."Add-Settings:newTabPlacement" -Force
@@ -142,6 +141,15 @@ function Add-Settings {
         [Parameter()]
         [ValidateSet('presentation', 'local', 'defaults')]
         [string] $settingName = 'defaults',
+
+    <#Alias: -dfp#>
+    <#Default profile used by terminal on start#>
+    <#Accepts values: '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}' | '{574e775e-4f2a-5b96-ac1e-a2962a402336}' | '{0caa0dad-35be-5f56-a8ff-afceeeaa6101}'#>
+    <#The values represent Windows PowerShell, PowerShell, and Command Prompt, respectively#>
+        [Parameter()]
+        [Alias('dfp')]
+        [ValidateSet('{61c54bbd-c2c6-5271-96e7-009a87ff44bf}', '{574e775e-4f2a-5b96-ac1e-a2962a402336}', '{0caa0dad-35be-5f56-a8ff-afceeeaa6101}')]
+        [string] $defaultProfile,
 
     <#Alias: -col#>
     <#Column width of console on start#>
@@ -468,6 +476,7 @@ function Add-Settings {
             $continue ='y'
         }
         if($continue -ieq 'y'){
+            $SettingsObject.defaultProfile= $PRDefaultParameterValues."Add-Settings:defaultProfile"
             $SettingsObject.initialCols = $PRDefaultParameterValues."Add-Settings:initCols"
             $SettingsObject.initialRows = $PRDefaultParameterValues."Add-Settings:initRows"
             $SettingsObject.newTabPosition = $PRDefaultParameterValues."Add-Settings:newTabPlacement"
@@ -534,6 +543,10 @@ function Add-Settings {
 
         }
             <#settings#>
+        if($defaultProfile -ne $SettingsObject.defaultProfile -and $PSBoundParameters.ContainsKey('defaultProfile')){
+            $SettingsObject.defaultProfile = $defaultProfile
+        }
+
         if($initCols -ne $SettingsObject.initialCols -and $PSBoundParameters.ContainsKey('initCols')){
             $SettingsObject.initialCols = $initCols
         }
@@ -589,15 +602,19 @@ function Add-Settings {
         }
         if($fontFace -ne $SettingsObject.profiles.defaults.font.face -and $PSBoundParameters.ContainsKey('fontFace')){
             $SettingsObject.profiles.defaults.font.face = $fontFace}
+
         if($fontSize -ne $SettingsObject.profiles.defaults.font.size -and $PSBoundParameters.ContainsKey('fontSize')){
             $SettingsObject.profiles.defaults.font.size = $fontSize}
+
         if($fontWeight -ne $SettingsObject.profiles.defaults.font.weight -and $PSBoundParameters.ContainsKey('fontWeight')){
             $SettingsObject.profiles.defaults.font.weight = $fontWeight}
+
         if($intenseTextStyle -ne $SettingsObject.profiles.defaults.intenseTextStyle -and $PSBoundParameters.ContainsKey('intenseStyle')){
             $SettingsObject.profiles.defaults.intenseTextStyle = $intenseTextStyle
         }
         if($transparency -ne $SettingsObject.profiles.defaults.opacity -and $PSBoundParameters.ContainsKey('transparency')){
             $SettingsObject.profiles.defaults.opacity = $transparency}
+
         if($padding -ne $SettingsObject.profiles.defaults.padding -and $PSBoundParameters.ContainsKey('padding')){
             $SettingsObject.profiles.defaults.padding = $padding
         }
@@ -631,36 +648,37 @@ function Add-Settings {
         if ($continue -ieq "y"){
             $outputFile = $PSSettings
             $defaultParams = Get-Content -Path "$env:PowerShellHome\Settings\settings.psd1" 
-            if($PSBoundParameters.ContainsKey('initCols')){$defaultParams[1] = "`t'Add-Settings:initCols'='$initCols'"}
-            if($PSBoundParameters.ContainsKey('initRows')){$defaultParams[2] = "`t'Add-Settings:initRows'='$initRows'"}
-            if($PSBoundParameters.ContainsKey('newTabPlacement')){$defaultParams[3] = "`t'Add-Settings:newTabPlacement'='$newTabPlacement'"}
-            if($PSBoundParameters.ContainsKey('tabWidthMode')){$defaultParams[4] = "`t'Add-Settings:tabWidthMode'='$tabWidthMode'"}
-            if($PSBoundParameters.ContainsKey('theme')){$defaultParams[5] = "`t'Add-Settings:theme'='$theme'"}
-            if($PSBoundParameters.ContainsKey('useAcrylicTab')){$defaultParams[6] = "`t'Add-Settings:useAcrylicTab'='$useAcrylicTab'"}
-            if($PSBoundParameters.ContainsKey('newTabAttach')){$defaultParams[7] = "`t'Add-Settings:newTabAttach'='$newTabAttach'"}
-            if($PSBoundParameters.ContainsKey('tabBg')){$defaultParams[8] = "`t'Add-Settings:tabBg'='$tabBg'"}
-            if($PSBoundParameters.ContainsKey('tabCloseButton')){$defaultParams[9] = "`t'Add-Settings:tabCloseButton'='$tabCloseButton'"}
-            if($PSBoundParameters.ContainsKey('tabStyleUnfocused')){$defaultParams[10] = "`t'Add-Settings:tabStyleUnfocused'='$tabStyleUnfocused'"}
-            if($PSBoundParameters.ContainsKey('windowTheme')){$defaultParams[11] = "`t'Add-Settings:windowTheme'='$windowTheme'"}
-            if($PSBoundParameters.ContainsKey('contrastAdjust')){$defaultParams[12] = "`t'Add-Settings:contrastAdjust'='$contrastAdjust'"}
-            if($PSBoundParameters.ContainsKey('bgTransparency')){$defaultParams[13] = "`t'Add-Settings:bgTransparency'='$bgTransparency'"}
-            if($PSBoundParameters.ContainsKey('bellOptions')){$defaultParams[14] = "`t'Add-Settings:bellOptions'='$bellOptions'"}
-            if($PSBoundParameters.ContainsKey('colorScheme')){$defaultParams[15] = "`t'Add-Settings:colorScheme'='$colorScheme'"}
-            if($PSBoundParameters.ContainsKey('closeTabBhavior')){$defaultParams[16] = "`t'Add-Settings:closeTabBhavior'='$closeTabBhavior'"}
-            if($PSBoundParameters.ContainsKey('cursorHeight')){$defaultParams[17] = "`t'Add-Settings:cursorHeight'='$cursorHeight'"}
-            if($PSBoundParameters.ContainsKey('cursorShape')){$defaultParams[18] = "`t'Add-Settings:cursorShape'='$cursorShape'"}
-            if($PSBoundParameters.ContainsKey('elevate')){$defaultParams[19] = "`t'Add-Settings:elevate'='$elevate'"}
-            if($PSBoundParameters.ContainsKey('fontFace')){$defaultParams[20] = "`t'Add-Settings:fontFace'='$fontFace'"}
-            if($PSBoundParameters.ContainsKey('fontSize')){$defaultParams[21] = "`t'Add-Settings:fontSize'='$fontSize'"}
-            if($PSBoundParameters.ContainsKey('fontWeight')){$defaultParams[22] = "`t'Add-Settings:fontWeight'='$fontWeight'"}
-            if($PSBoundParameters.ContainsKey('intenseStyle')){$defaultParams[23] = "`t'Add-Settings:intenseStyle'='$intenseStyle'"}
-            if($PSBoundParameters.ContainsKey('transparency')){$defaultParams[24] = "`t'Add-Settings:transparency'='$transparency'"}
-            if($PSBoundParameters.ContainsKey('padding')){$defaultParams[25] = "`t'Add-Settings:padding'='$padding'"}
-            if($PSBoundParameters.ContainsKey('scrollbar')){$defaultParams[26] = "`t'Add-Settings:scrollbar'='$scrollbar'"}
-            if($PSBoundParameters.ContainsKey('suppressTitleChange')){$defaultParams[27] = "`t'Add-Settings:suppressTitleChange'='$suppressTitleChange'"}
-            if($PSBoundParameters.ContainsKey('inputSnap')){$defaultParams[28] = "`t'Add-Settings:inputSnap'='$inputSnap'"}
-            if($PSBoundParameters.ContainsKey('acrylicBg')){$defaultParams[29] = "`t'Add-Settings:acrylicBg'='$acrylicBg'"}
-            if($PSBoundParameters.ContainsKey('atlasEngine')){$defaultParams[30] = "`t'Add-Settings:atlasEngine'='$atlasEngine'"}
+            if($PSBoundParameters.ContainsKey('defaultProfile')){$defaultParams[1] = "`t'Add-Settings:defaultProfile'='$defaultProfile'"}
+            if($PSBoundParameters.ContainsKey('initCols')){$defaultParams[2] = "`t'Add-Settings:initCols'='$initCols'"}
+            if($PSBoundParameters.ContainsKey('initRows')){$defaultParams[3] = "`t'Add-Settings:initRows'='$initRows'"}
+            if($PSBoundParameters.ContainsKey('newTabPlacement')){$defaultParams[4] = "`t'Add-Settings:newTabPlacement'='$newTabPlacement'"}
+            if($PSBoundParameters.ContainsKey('tabWidthMode')){$defaultParams[5] = "`t'Add-Settings:tabWidthMode'='$tabWidthMode'"}
+            if($PSBoundParameters.ContainsKey('theme')){$defaultParams[6] = "`t'Add-Settings:theme'='$theme'"}
+            if($PSBoundParameters.ContainsKey('useAcrylicTab')){$defaultParams[7] = "`t'Add-Settings:useAcrylicTab'='$useAcrylicTab'"}
+            if($PSBoundParameters.ContainsKey('newTabAttach')){$defaultParams[8] = "`t'Add-Settings:newTabAttach'='$newTabAttach'"}
+            if($PSBoundParameters.ContainsKey('tabBg')){$defaultParams[9] = "`t'Add-Settings:tabBg'='$tabBg'"}
+            if($PSBoundParameters.ContainsKey('tabCloseButton')){$defaultParams[10] = "`t'Add-Settings:tabCloseButton'='$tabCloseButton'"}
+            if($PSBoundParameters.ContainsKey('tabStyleUnfocused')){$defaultParams[11] = "`t'Add-Settings:tabStyleUnfocused'='$tabStyleUnfocused'"}
+            if($PSBoundParameters.ContainsKey('windowTheme')){$defaultParams[12] = "`t'Add-Settings:windowTheme'='$windowTheme'"}
+            if($PSBoundParameters.ContainsKey('contrastAdjust')){$defaultParams[13] = "`t'Add-Settings:contrastAdjust'='$contrastAdjust'"}
+            if($PSBoundParameters.ContainsKey('bgTransparency')){$defaultParams[14] = "`t'Add-Settings:bgTransparency'='$bgTransparency'"}
+            if($PSBoundParameters.ContainsKey('bellOptions')){$defaultParams[54] = "`t'Add-Settings:bellOptions'='$bellOptions'"}
+            if($PSBoundParameters.ContainsKey('colorScheme')){$defaultParams[16] = "`t'Add-Settings:colorScheme'='$colorScheme'"}
+            if($PSBoundParameters.ContainsKey('closeTabBhavior')){$defaultParams[17] = "`t'Add-Settings:closeTabBhavior'='$closeTabBhavior'"}
+            if($PSBoundParameters.ContainsKey('cursorHeight')){$defaultParams[18] = "`t'Add-Settings:cursorHeight'='$cursorHeight'"}
+            if($PSBoundParameters.ContainsKey('cursorShape')){$defaultParams[19] = "`t'Add-Settings:cursorShape'='$cursorShape'"}
+            if($PSBoundParameters.ContainsKey('elevate')){$defaultParams[20] = "`t'Add-Settings:elevate'='$elevate'"}
+            if($PSBoundParameters.ContainsKey('fontFace')){$defaultParams[21] = "`t'Add-Settings:fontFace'='$fontFace'"}
+            if($PSBoundParameters.ContainsKey('fontSize')){$defaultParams[22] = "`t'Add-Settings:fontSize'='$fontSize'"}
+            if($PSBoundParameters.ContainsKey('fontWeight')){$defaultParams[23] = "`t'Add-Settings:fontWeight'='$fontWeight'"}
+            if($PSBoundParameters.ContainsKey('intenseStyle')){$defaultParams[24] = "`t'Add-Settings:intenseStyle'='$intenseStyle'"}
+            if($PSBoundParameters.ContainsKey('transparency')){$defaultParams[25] = "`t'Add-Settings:transparency'='$transparency'"}
+            if($PSBoundParameters.ContainsKey('padding')){$defaultParams[26] = "`t'Add-Settings:padding'='$padding'"}
+            if($PSBoundParameters.ContainsKey('scrollbar')){$defaultParams[27] = "`t'Add-Settings:scrollbar'='$scrollbar'"}
+            if($PSBoundParameters.ContainsKey('suppressTitleChange')){$defaultParams[28] = "`t'Add-Settings:suppressTitleChange'='$suppressTitleChange'"}
+            if($PSBoundParameters.ContainsKey('inputSnap')){$defaultParams[29] = "`t'Add-Settings:inputSnap'='$inputSnap'"}
+            if($PSBoundParameters.ContainsKey('acrylicBg')){$defaultParams[30] = "`t'Add-Settings:acrylicBg'='$acrylicBg'"}
+            if($PSBoundParameters.ContainsKey('atlasEngine')){$defaultParams[31] = "`t'Add-Settings:atlasEngine'='$atlasEngine'"}
             $defaultParams | Set-Content -Path "$env:PowerShellHome\Settings\settings.psd1" -Force
         } else {
             return
