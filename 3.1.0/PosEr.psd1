@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '3.0.0'
+    ModuleVersion = '3.1.0'
     Author = 'Ben Boyer'
     Description = 'Powershell Profile Editor for Windows Terminal'
     RootModule = 'PosEr.psm1'
