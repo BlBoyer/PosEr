@@ -169,7 +169,7 @@ function Add-Settings {
 
     <#Alias: -twm#>
     <#Width of tab#>
-    <#Accepts values: 10-80#>
+    <#Accepts values: 'compact' | 'equal' | 'titleLength'#>
         [Parameter()]
         [Alias('twm')]
         [ValidateSet('compact','equal','titleLength')]
