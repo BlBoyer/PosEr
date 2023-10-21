@@ -47,7 +47,12 @@ function Set-Environment {
     if ($noPrompts){
         Write-Host "No themes were found for 'oh-my-posh'" -ForegroundColor Magenta
     }
-    Move-Item -Path "$PowerShellProfilePath\*.omp" -Destination "$PowerShellProfilePath\Prompts" -Force
+    Move-Item -Path "$PowerShellProfilePath\*.omp.json" -Destination "$PowerShellProfilePath\Prompts" -Force -Verbose
+
+    <#this restarts the window to reload env variables#>
+    Write-Host "Do not continue using this window." -ForegroundColor Red
+    Pause
+    Exit wt.exe
 }
 
 function New-Settings {
@@ -788,7 +793,7 @@ function Set-OhMyPrompt([string]$settingsFilePath, [switch]$chp){
         }
     }
 }
-
+. $PSScriptRoot\Uninstall-Poser.ps1
 New-Alias -Name chp  -Value Switch-Profile -Description 'Change between profiles.'
 New-Alias -Name pps -Value Add-Settings -Description 'Modify settings for profiles.'
 Export-ModuleMember -Function * -Alias *
