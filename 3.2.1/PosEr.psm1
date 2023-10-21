@@ -47,6 +47,7 @@ function Set-Environment {
     if ($noPrompts){
         Write-Host "No themes were found for 'oh-my-posh'" -ForegroundColor Magenta
     }
+    Move-Item -Path "$PowerShellProfilePath\*.omp" -Destination "$PowerShellProfilePath\Prompts" -Force
 }
 
 function New-Settings {
