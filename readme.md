@@ -17,9 +17,25 @@
 
    It is recommended you put the module in "__C:\Program Files\WindowsPowerShell\Modules__" in order to use it with all powershell hosts.
 
-3. Then use the following command to import the module,
+3. You may need to install the PSReadline module before using this one.  
+   Check if you have it first:  
 
    ```pwsh
+   gmo psreadline #or
+   Get-Module PSReadline
+   ```
+
+   If you do not see the module, them install it now:
+
+   ```pwsh
+   inmo psreadline -Force #or
+   Install-Module PSReadline -Force
+   ```
+
+4. Use the following command to import the module,
+
+   ```pwsh
+   ipmo poser #or
    Import-Module PosEr
    ```
 
@@ -33,6 +49,7 @@ The module contains four functions for your use:
 * Switch-Profile
 
 Use the __`'Set-Environment'`__ command and supply the '__PowerShellProfilePath__' parameter with the path to the folder you have your PowerShell profile script in. If the profile script is pointing to another, do not use the path to it; instead, use the path to the '__profile.ps1__' you're pointing at.  
+<mark>*Do not use quotes around the path.</mark>
 
 The module will then create environment variables and folders to use.  
 Use the __`'New-Settings'`__ command to run the initial setup for the terminal settings. If this is not done, it will automatically run when attempting to use the module the first time.  
