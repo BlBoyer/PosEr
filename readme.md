@@ -1,4 +1,3 @@
-
 # Getting Started
 
 [[TOC]]
@@ -15,7 +14,7 @@
    $env:PSModulePath
    ```
 
-   It is recommended you put the module in "__C:\Program Files\WindowsPowerShell\Modules__" in order to use it with all powershell hosts.
+   Put the module in "__C:\Program Files\WindowsPowerShell\Modules__" in order to use it with all powershell hosts.
 
 3. You may need to install the PSReadline module before using this one.  
    Check if you have it first:  
@@ -60,7 +59,8 @@ Use the __`'New-Settings'`__ command to run the initial setup for the terminal s
 This module will setup a folder for __'oh-my-posh'__ prompts, <font color="magenta">but it is not required to use it</font>. If you don't have it, you can get it [__here__](https://ohmyposh.dev/).  
 You should install nerdfonts if you plan on using __'oh-my-posh'__.  
 
-Find the '__Prompts__' folder. You can add your prompt themes here for later use with the module.
+Find the '__Prompts__' folder. You can add your prompt themes here for later use with the module.  
+<font color="green">*PosEr will move any prompts initially in your profile directory on installation.</font>
 &nbsp;
 
 <mark>*You can use aliases for the following commands, see [*__Aliases__*](#use-the-aliases).</mark>
@@ -78,6 +78,7 @@ Add-Settings defaults [-option] [value]
 
 The options are (see the [help](#help) for more detailed information):
 
+* <font color="cyan">defaultProfile</font>
 * <font color="cyan">initCols</font>
 * <font color="cyan">initRows</font>
 * <font color="cyan">newTabPlacement</font>
@@ -171,6 +172,7 @@ In order to view the help documentation:
 1. If the import statement is not in your '__profile.ps1__', explicitly import the '__Poser__' module
 
    ```pwsh
+   ipmo poser #or
    Import-Module Poser
    ```
 

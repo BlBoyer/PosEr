@@ -220,7 +220,7 @@ function Add-Settings {
         [string] $tabBg,
 
     <#Alias: -tcb#>
-    <#Tab close on exit behavior#>
+    <#Tab close button#>
     <#Accepts values: 'always' | 'hover' | 'never'#>
         [Parameter()]
         [Alias('tcb')]
@@ -291,7 +291,7 @@ function Add-Settings {
         [Parameter()]
         [Alias('ctb')]
         [ValidateSet('never', 'automatic', 'always', 'graceful')]
-        [string] $closeTabBehaviour,
+        [string] $closeTabBehavior,
 
     <#Alias: -ch#>
     <#Cursor height#>
@@ -594,6 +594,7 @@ function Add-Settings {
             }
         if($colorScheme -ne $SettingsObject.profiles.defaults.colorScheme -and $PSBoundParameters.ContainsKey('colorScheme')){
             $SettingsObject.profiles.defaults.colorScheme = $colorScheme}
+            
         if($closeTabBehavior -ne $SettingsObject.profiles.defaults.closeOnExit -and $PSBoundParameters.ContainsKey('closeTabBehavior')){
             $SettingsObject.profiles.defaults.closeOnExit = $closeTabBehavior
         }
@@ -670,7 +671,7 @@ function Add-Settings {
             if($PSBoundParameters.ContainsKey('bgTransparency')){$defaultParams[14] = "`t'Add-Settings:bgTransparency'='$bgTransparency'"}
             if($PSBoundParameters.ContainsKey('bellOptions')){$defaultParams[54] = "`t'Add-Settings:bellOptions'='$bellOptions'"}
             if($PSBoundParameters.ContainsKey('colorScheme')){$defaultParams[16] = "`t'Add-Settings:colorScheme'='$colorScheme'"}
-            if($PSBoundParameters.ContainsKey('closeTabBhavior')){$defaultParams[17] = "`t'Add-Settings:closeTabBhavior'='$closeTabBhavior'"}
+            if($PSBoundParameters.ContainsKey('closeTabBehavior')){$defaultParams[17] = "`t'Add-Settings:closeTabBehavior'='$closeTabBehavior'"}
             if($PSBoundParameters.ContainsKey('cursorHeight')){$defaultParams[18] = "`t'Add-Settings:cursorHeight'='$cursorHeight'"}
             if($PSBoundParameters.ContainsKey('cursorShape')){$defaultParams[19] = "`t'Add-Settings:cursorShape'='$cursorShape'"}
             if($PSBoundParameters.ContainsKey('elevate')){$defaultParams[20] = "`t'Add-Settings:elevate'='$elevate'"}
